@@ -1,0 +1,38 @@
+<html>
+
+<head>
+    <script src="https://sis-t.redsys.es:25443/sis/NC/sandbox/redsysV3.js"></script>
+</head>
+
+<body>
+    <div id="card-form" />
+    <form name="datos">
+        <input type="hidden" id="token"></input>
+        <input type="hidden" id="errorCode"></input>
+        <a href="javascript:alert(document.datos.token.value + '--' + document.datos.errorCode.value)"> ver</a>
+    </form>
+
+    <script>
+        function merchantValidationEjemplo() {
+            //Insertar validaciones…
+            alert("Esto son validaciones propias");
+            return true;
+        }
+ 
+
+    < !--Listener de recepción de ID de operación-- >
+            window.addEventListener("message", function receiveMessage(event) {
+                storeIdOper(event, "token", "errorCode", merchantValidationEjemplo);
+            });
+
+
+
+        function pedido() {
+            return "pedido" + Math.floor((Math.random() * 1000) + 1);
+        }
+        getInSiteForm('card-form', '', '', '', '', 'Texto botón pago', '999008881', '1', pedido(), 'ES', true);
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+	<style>
+input[type=text], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+input[type=submit] {
+  width: 100%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: #45a049;
+}
+
+div {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+</style>
+  <head>
+    <title>Fahad's Passkey demo</title>
+    <meta charset="utf-8">
+    <script src="/cbor.js" type="text/javascript"></script>
+    <script>
+
+ 			//function to convert byte array 12,23,42 to hex
+    	function toHexString(byteArray) {
+    		return Array.from(byteArray, function(byte) {
+    			return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+    			}).join('')
+    			}
+    	
+    	function buf2hex(buffer) { // buffer is an ArrayBuffer
+    		return [...new Uint8Array(buffer)]
+    		.map(x => x.toString(16).padStart(2, '0'))
+    		.join('');
+    		}
+    	
+    	function ab2str(buf) {
+    		return String.fromCharCode.apply(null, new Uint8Array(buf));
+    		}
+			
+			async function createPasskey() {
+			//alert("I've been clicked!!");
+			
+			const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+			const useridentity = genRanHex(32);
+			const challengeCreate = genRanHex(32);
+			
+			console.log("Random User ID:" + useridentity);
+			console.log("Random Challenge: " + challengeCreate);
+			
+			const publicKeyCredentialCreationOptions = { 
+				challenge: Uint8Array.from(challengeCreate, c => c.charCodeAt(0)),
+				rp: {  
+				name: "Example",  
+				id: "localhost",  
+				},
+				user: {  
+				id: Uint8Array.from("UZSL85T9AFC", c => c.charCodeAt(0)),
+				//id: Uint8Array.from(useridentity, c => c.charCodeAt(0)),
+				name: "Fahad Saleem",  
+				displayName: "Fahad",
+				},
+				pubKeyCredParams: [{alg: -7, type: "public-key"},{alg: -257, type: "public-key"}],  
+				excludeCredentials: [{  
+				id: Uint8Array.from("1234", c => c.charCodeAt(0)), 
+				type: 'public-key',  
+				transports: ['internal'],
+				}],
+				attestation: "direct",
+				authenticatorSelection: {  
+				authenticatorAttachment: "platform",  
+				requireResidentKey: true,
+				userVerification: "required",
+				}
+			};
+			const credential = await navigator.credentials.create({  
+			publicKey: publicKeyCredentialCreationOptions
+			});
+			
+			
+			console.log(credential);
+			
+			//Get Identity generated
+			const identity = credential.id;
+			console.log("Identity Base64: " + identity);
+			
+
+			
+			//Get Raw ID
+			var rawIdentity = new Uint8Array(credential.rawId);
+			const rawIdData = buf2hex(rawIdentity);
+			console.log("Raw Identity: " + rawIdData);
+			
+			// decode the clientDataJSON into a utf-8 string
+			const utf8Decoder = new TextDecoder('utf-8');
+			const decodedClientData = utf8Decoder.decode(credential.response.clientDataJSON);
+			// parse the string as an object
+			const clientDataObj = JSON.parse(decodedClientData);
+			var str = JSON.stringify(clientDataObj, null, 4);
+			console.log("Decoded Client Data JSON:" + str);
+			
+			//Get Transport
+			const transports = credential.response.getTransports();
+			console.log("Transports:" + transports);
+			
+			//Get Public Key
+			const getpkey = credential.response.getPublicKey();
+			var pkeyAtt = new Uint8Array(getpkey);
+			const pkeyAttDec = buf2hex(pkeyAtt);
+			console.log("Public Key: " + pkeyAttDec);
+			
+			//Get Authenticator Data
+			const getAD = credential.response.getAuthenticatorData();
+			var getADArr = new Uint8Array(getAD);
+			const getADDec = buf2hex(getADArr);
+			console.log("Authenticator Data: " + getADDec);
+			
+			//Get Public Key Algorithm
+			const getAlgo = credential.response.getPublicKeyAlgorithm();
+			console.log("Public Key Algorithm : " + getAlgo);
+			
+			//CBOR
+			const decodedAttestationObject = CBOR.decode(credential.response.attestationObject);
+			console.log("Decoded Attestation Object:");
+			console.log(decodedAttestationObject);
+			
+			console.log("Attestation Object Format: " + decodedAttestationObject.fmt);
+			
+			const attStatement = decodedAttestationObject.attStmt
+			console.log("Attestation Algorithm: " + attStatement.alg);
+			
+			//console.log("Attestation Signature: " + attStatement.sig);
+			var attSignature = new Uint8Array(attStatement.sig);
+			const attSig = buf2hex(attSignature);
+			console.log("Attestation Signature: " + attSig);
+			
+			
+			//console.log("Auth Data: " + decodedAttestationObject.authData);
+			var authDataRaw = new Uint8Array(decodedAttestationObject.authData);
+			const authDataNew = buf2hex(authDataRaw);
+			console.log("Auth Data Hex Self decode: " + authDataNew);
+			
+			
+			
+			
+			const {authData} = decodedAttestationObject;
+			// get the length of the credential ID
+			const dataView = new DataView(new ArrayBuffer(2));
+			const idLenBytes = authData.slice(53, 55);
+			idLenBytes.forEach(
+			(value, index) => dataView.setUint8(
+			index, value));
+			const credentialIdLength = dataView.getUint16();
+			
+			// get the credential ID
+			const credentialId = authData.slice(55, 55 + credentialIdLength);
+			//console.log("Credential ID: " + credentialId);
+			const credId = toHexString(credentialId);
+			console.log("Credential ID HEX: " + credId);
+
+			
+			//store in local storage for test
+			//localStorage.setItem('credid', `${hexCredId}`);
+			//localStorage.setItem('credid', hexCredId);
+			
+			// get the public key object
+			const publicKeyBytes = authData.slice(55 + credentialIdLength);
+			
+			// the publicKeyBytes are encoded again as CBOR
+			const publicKeyObject = CBOR.decode(publicKeyBytes.buffer);
+			//console.log("Public Key Object:");
+			//console.log(publicKeyObject);
+			
+			console.log("Public Key x-coordinate:");
+			//console.log(publicKeyObject['-2']);
+			const publickeyx = publicKeyObject['-2'];
+			console.log(buf2hex(publickeyx));
+			
+			console.log("Public Key y-coordinate:");
+			//console.log(publicKeyObject['-3']);
+			const publickeyy = publicKeyObject['-3'];
+			console.log(buf2hex(publickeyy));
+			
+			
+			
+		}
+		
+		
+		async function verifyPasskey() {
+			
+			//console.log(passedCredNew);
+			
+			// To abort a WebAuthn call, instantiate an `AbortController`.  
+			const abortController = new AbortController();
+			
+			const publicKeyCredentialRequestOptions = {  
+				// Server generated challenge  
+				challenge: Uint8Array.from("4A54657686543D3CABCD", c => c.charCodeAt(0)),
+				
+				// The same RP ID as used during registration  
+				rpId: 'localhost',  
+				};
+				
+			const credential = await navigator.credentials.get({  
+				publicKey: publicKeyCredentialRequestOptions,  
+				//signal: abortController.signal,  
+				// Specify 'conditional' to activate conditional UI  
+				//mediation: 'conditional'
+				});
+				
+			console.log(credential);
+			console.log("response id: " + credential.id);
+			
+			const utf8Decoder = new TextDecoder('utf-8');
+			const decodedClientData = utf8Decoder.decode(credential.response.clientDataJSON);
+			// parse the string as an object
+			const clientDataObj = JSON.parse(decodedClientData);
+			var str = JSON.stringify(clientDataObj, null, 4);
+			console.log("Decoded Client Data JSON:" + str);
+			
+			//console.log(credential.response.authenticatorData);
+			
+			var authDataAssertion = new Uint8Array(credential.response.authenticatorData);
+			//console.log(authDataAssertion);
+			const authDataAssert = buf2hex(authDataAssertion)
+			console.log("Auth Data from AssertionHex: " + authDataAssert)
+			//console.log(buf2hex(authDataAssertion));
+			
+			var signatureAssertion = new Uint8Array(credential.response.signature);
+			//console.log(uint8View);
+			const sigAssertion = buf2hex(signatureAssertion)
+			console.log("Assertion Signature Hex: " + sigAssertion)
+			//console.log(buf2hex(signatureAssertion));
+			
+			var userHandleResponse = new Uint8Array(credential.response.userHandle);
+			//console.log(uint8View);
+			const userHandle = buf2hex(userHandleResponse)
+			console.log("User Handle Hex: " + userHandle)
+			//console.log(buf2hex(userHandleResponse));
+			
+			//var auth_data = new Uint8Array(attestation.response.authenticatorData);
+			let data_hash = new Uint8Array(await crypto.subtle.digest('SHA-256', credential.response.clientDataJSON));
+			//var data_hash = sha256(new Uint8Array(credential.response.clientDataJSON));
+			var signed    = new Uint8Array(authDataAssertion.length + data_hash.length);
+			
+			//Uint8Array.set(Uint8Array[data, offset])
+			signed.set(authDataAssertion);
+			signed.set(data_hash, authDataAssertion.length);
+			
+			const dataString = buf2hex(signed)
+			console.log("Data string for signature verification in hex: " + dataString)
+			//console.log(buf2hex(signed));
+			window.location.assign("cardlist.html");
+
+
+			
+			
+			
+			
+		}
+	</script>
+  </head>
+  <body>
+  	<div>
+  <form action="/action_page.php">
+    <label for="cnum">Card Number</label>
+    
+    <input type="text" name="email" autocomplete="username webauthn" placeholder="Card number">
+    
+    <div style="float:left;">
+    <label for="exp">Expiration</label>
+    <input type="text" id="exp" name="expiration" size="8" placeholder="Expiration">
+    </div>
+    <div="float:left;">
+    <label for="scode">Security Code</label>
+    <input type="text" id="scode" name="seccode" size="8" placeholder="Security Code">
+    </div>
+  
+    <input type="submit" value="Submit">
+  </form>
+</div>
+
+  	 
+    <script>
+    	//<button onclick="createPasskey()">Create Passkey</button>
+    	//<button onclick="verifyPasskey()">Log in with a Passkey</button>
+    	
+    	window.onload = async function () {
+    		
+    		// Availability of `window.PublicKeyCredential` means WebAuthn is usable.  
+// `isUserVerifyingPlatformAuthenticatorAvailable` means the feature detection is usable.  
+// `isConditionalMediationAvailable` means the feature detection is usable.  
+if (window.PublicKeyCredential &&  
+    PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable &&  
+    PublicKeyCredential.isConditionalMediationAvailable) {  
+  // Check if user verifying platform authenticator is available.  
+  Promise.all([  
+    PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable(),  
+    PublicKeyCredential.isConditionalMediationAvailable(),  
+  ]).then(results => {  
+    if (results.every(r => r === true)) {  
+      // Display "Create a new passkey" button
+      //alert("Passkeys exist!!"); 
+      
+    }  
+  });  
+}  
+    	const abortController = new AbortController();
+			
+			const publicKeyCredentialRequestOptions = {  
+				// Server generated challenge  
+				challenge: Uint8Array.from("4A54657686543D3CABCD", c => c.charCodeAt(0)),
+				
+				// The same RP ID as used during registration  
+				rpId: 'localhost',  
+				};
+				
+			
+			const credential = await navigator.credentials.get({  
+				publicKey: publicKeyCredentialRequestOptions,  
+				signal: abortController.signal,  
+				// Specify 'conditional' to activate conditional UI  
+				mediation: 'conditional'
+				});
+				
+				console.log(credential);
+			console.log("response id: " + credential.id);
+			
+			const utf8Decoder = new TextDecoder('utf-8');
+			const decodedClientData = utf8Decoder.decode(credential.response.clientDataJSON);
+			// parse the string as an object
+			const clientDataObj = JSON.parse(decodedClientData);
+			var str = JSON.stringify(clientDataObj, null, 4);
+			console.log("Decoded Client Data JSON:" + str);
+			
+			//console.log(credential.response.authenticatorData);
+			
+			var authDataAssertion = new Uint8Array(credential.response.authenticatorData);
+			//console.log(authDataAssertion);
+			const authDataAssert = buf2hex(authDataAssertion)
+			console.log("Auth Data from AssertionHex: " + authDataAssert)
+			//console.log(buf2hex(authDataAssertion));
+			
+			var signatureAssertion = new Uint8Array(credential.response.signature);
+			//console.log(uint8View);
+			const sigAssertion = buf2hex(signatureAssertion)
+			console.log("Assertion Signature Hex: " + sigAssertion)
+			//console.log(buf2hex(signatureAssertion));
+			
+			var userHandleResponse = new Uint8Array(credential.response.userHandle);
+			//console.log(uint8View);
+			const userHandle = buf2hex(userHandleResponse)
+			console.log("User Handle Hex: " + userHandle)
+			//console.log(buf2hex(userHandleResponse));
+			
+			//var auth_data = new Uint8Array(attestation.response.authenticatorData);
+			let data_hash = new Uint8Array(await crypto.subtle.digest('SHA-256', credential.response.clientDataJSON));
+			//var data_hash = sha256(new Uint8Array(credential.response.clientDataJSON));
+			var signed    = new Uint8Array(authDataAssertion.length + data_hash.length);
+			
+			//Uint8Array.set(Uint8Array[data, offset])
+			signed.set(authDataAssertion);
+			signed.set(data_hash, authDataAssertion.length);
+			
+			const dataString = buf2hex(signed)
+			console.log("Data string for signature verification in hex: " + dataString)
+			//console.log(buf2hex(signed));
+			window.location.assign("cardlist.html");
+			}
+		</script>
+	
+
+  </body>
+</html>
+
