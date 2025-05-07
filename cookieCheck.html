@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cookie Check</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; }
+    .success { color: green; }
+    .fail { color: red; }
+  </style>
+</head>
+<body>
+  <h1>Cookie Check</h1>
+  <p id="status">Checking...</p>
+
+  <script>
+    // Set a test cookie with SameSite=None to allow cross-site access
+    document.cookie = "device_binding=true; SameSite=None; Secure; path=/";
+    console.log("Attempted to set cookie:", document.cookie);
+
+    // Check if the cookie is readable
+    window.addEventListener("load", () => {
+      const allCookies = document.cookie;
+      const cookieStatus = document.getElementById('status');
+      console.log("All cookies on load:", allCookies);
+
+      if (allCookies.includes("device_binding=true")) {
+        cookieStatus.innerText = "✅ Cookie is present and readable!";
+        cookieStatus.className = "success";
+      } else {
+        cookieStatus.innerText = "❌ Cookie not found or not readable.";
+        cookieStatus.className = "fail";
+      }
+    });
+  </script>
+</body>
+</html>
