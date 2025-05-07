@@ -2,35 +2,48 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Cookie Check</title>
+  <title>Cookie Presence Check</title>
   <style>
     body { font-family: sans-serif; padding: 2em; }
-    .success { color: green; }
-    .fail { color: red; }
+    .status { font-size: 1.2em; margin-top: 1em; }
+    .found { color: green; }
+    .set { color: blue; }
+    .missing { color: red; }
   </style>
 </head>
 <body>
-  <h1>Cookie Check</h1>
-  <p id="status">Checking...</p>
+  <h1>Cookie Check on Load</h1>
+  <p class="status" id="status">Checking cookie...</p>
 
   <script>
-    // Set a test cookie with SameSite=None to allow cross-site access
-    document.cookie = "device_binding=true; SameSite=None; Secure; path=/";
-    console.log("Attempted to set cookie:", document.cookie);
+    function getCookie(name) {
+      return document.cookie
+        .split('; ')
+        .find(row => row.startsWith(name + '='))
+        ?.split('=')[1];
+    }
 
-    // Check if the cookie is readable
-    window.addEventListener("load", () => {
-      const allCookies = document.cookie;
-      const cookieStatus = document.getElementById('status');
-      console.log("All cookies on load:", allCookies);
+    function setCookie(name, value, days) {
+      const expires = new Date(Date.now() + days * 864e5).toUTCString();
+      const cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=None; Secure`;
+      document.cookie = cookie;
+      console.log("Setting cookie:", cookie);
+    }
 
-      if (allCookies.includes("device_binding=true")) {
-        cookieStatus.innerText = "✅ Cookie is present and readable!";
-        cookieStatus.className = "success";
+    window.addEventListener('load', () => {
+      const statusEl = document.getElementById('status');
+      const cookieValue = getCookie('device_binding');
+
+      if (cookieValue === 'true') {
+        statusEl.innerText = '✅ Cookie "device_binding=true" already exists.';
+        statusEl.className = 'status found';
       } else {
-        cookieStatus.innerText = "❌ Cookie not found or not readable.";
-        cookieStatus.className = "fail";
+        setCookie('device_binding', 'true', 7);
+        statusEl.innerText = '🍪 Cookie not found. Setting "device_binding=true" now.';
+        statusEl.className = 'status set';
       }
+
+      console.log("Current document.cookie:", document.cookie);
     });
   </script>
 </body>
