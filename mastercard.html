@@ -116,7 +116,9 @@
 			window.location.assign("success.html");
 		} catch (err) {
           console.warn("Authentication failed:", err);
-          document.getElementById("createButton").style.display = "block";
+          //document.getElementById("createButton").style.display = "block";
+		createPasskey()
+				
         }
 
 			
@@ -299,6 +301,6 @@
   </head>
   <body>
     <h1>Authenticating...</h1>
-    <button id="createButton" onclick="createPasskey()">Create Passkey</button>
+    <!--<button id="createButton" onclick="createPasskey()">Create Passkey</button> -->
   </body>
 </html>
