@@ -504,8 +504,9 @@ iframe { position: relative; top: 1px; left: #px; height: 140%; width: 100%; rig
         const response = await navigator.credentials.get(request);
         console.log('Presentation response:', response);
 
-	const cborResponse = response.response;
-	console.log('📦 CBOR Response:', cborResponse);
+	const responseBase64 = presentation.data.response;
+
+	console.log("📦 Base64-encoded CBOR response string:", responseBase64);
 
 	
         
