@@ -504,7 +504,7 @@ iframe { position: relative; top: 1px; left: #px; height: 140%; width: 100%; rig
         const response = await navigator.credentials.get(request);
         console.log('Presentation response:', response);
 
-	const responseBase64 = presentation.data.response;
+	const responseBase64 = response.data.response;
 
 	console.log("📦 Base64-encoded CBOR response string:", responseBase64);
 
@@ -517,7 +517,7 @@ iframe { position: relative; top: 1px; left: #px; height: 140%; width: 100%; rig
       }
     }
 
-    document.getElementById('button-scheme-bebb7f5b-49ef-4eae-aa54-03d988abffbd').addEventListener('click', requestPresentation);
+    document.getElementById('presentationBtn').addEventListener('click', requestPresentation);
   </script>
 
 	
