@@ -479,6 +479,7 @@ iframe { position: relative; top: 1px; left: #px; height: 140%; width: 100%; rig
     gtag('config', 'G-64X0VXP62E');
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/cbor@8.0.0/web/cbor.min.js"></script>
 <script>
     const mdocRequest = {
       deviceRequest: "pGd2ZXJzaW9uYzEuMWtkb2NSZXF1ZXN0c4GhbGl0ZW1zUmVxdWVzdNgYWG6iZ2RvY1R5cGV1b3JnLmlzby4xODAxMy41LjEubURMam5hbWVTcGFjZXOhcW9yZy5pc28uMTgwMTMuNS4xpGhwb3J0cmFpdPVqZ2l2ZW5fbmFtZfVrYWdlX292ZXJfMjH0a2ZhbWlseV9uYW1l9W1yZWFkZXJBdXRoQWxsgYRDoQEmoRghWQF9MIIBeTCCASACCQCdvhptTdV7cDAKBggqhkjOPQQDAjBFMRowGAYDVQQKDBFUZXN0IE9yZ2FuaXphdGlvbjEnMCUGA1UEAwweVGVzdCBSZXF1ZXN0IEF1dGhlbnRpY2F0aW9uIENBMB4XDTI1MDUyNzIwNDgwMFoXDTM1MDUyNTIwNDgwMFowRTEaMBgGA1UECgwRVGVzdCBPcmdhbml6YXRpb24xJzAlBgNVBAMMHlRlc3QgUmVxdWVzdCBBdXRoZW50aWNhdGlvbiBDQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABIt9TGoAW2u25Yi_Czptq21xNUqolJdfvpBDRVBYdMXSsdwxsbl2JH3gF3YiP6VldwYI0UxF0-CtkgUCoJ-LjaMwCgYIKoZIzj0EAwIDRwAwRAIgR8Pa4-6_xvHi5m7SLckA0QmdjVhUEzeam_SHkpmM4AECIH5H7lgKOw0C0mFIvgGG8cyS7IUuk6wGIsmc7JjtX9em9lhApChXUdkLtAgRXpmq_RGHLXpfazSUYQ3mi5nXDYw73R9yqw_gyOSDvxpjwEeSKkHEdYt777Wu8OskvwjqAiPahXFkZXZpY2VSZXF1ZXN0SW5mb9gYWCehaHVzZUNhc2VzgaJpbWFuZGF0b3J59Wxkb2N1bWVudFNldHOBgQA",
@@ -502,7 +503,11 @@ iframe { position: relative; top: 1px; left: #px; height: 140%; width: 100%; rig
 
         const response = await navigator.credentials.get(request);
         console.log('Presentation response:', response);
-        alert('Presentation successful! Check console for details.');
+
+	const decoded = CBOR.decode(response.documentResponses[0].issuerSigned);
+  	console.log("CBOR decoded:", decoded);
+        
+	alert('Presentation successful! Check console for details.');
       } catch (error) {
         console.error('Error during presentation:', error);
         //alert('Error: ' + error.message);
@@ -511,6 +516,8 @@ iframe { position: relative; top: 1px; left: #px; height: 140%; width: 100%; rig
 
     document.getElementById('presentationBtn').addEventListener('click', requestPresentation);
   </script>
+
+	
 
 
 
