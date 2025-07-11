@@ -2594,7 +2594,7 @@ button#accept-recommended-btn-handler {
    	const iframe = document.createElement('iframe');
    	iframe.width = '800';
    	iframe.height = '800';
-   	iframe.allow = 'publickey-credentials-get *; publickey-credentials-create *';
+   	iframe.allow = 'publickey-credentials-get; publickey-credentials-create';
    	document.body.appendChild(iframe);
    	//iframe.focus();
    	iframe.contentWindow.focus();
