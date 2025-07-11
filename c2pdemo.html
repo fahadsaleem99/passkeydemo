@@ -2372,7 +2372,7 @@ button#accept-recommended-btn-handler {
             	<div data-session-trace-id="a433a073-55a5-4201-a963-532ca3b04889" class="wrapper root-container"><!----><main style="display: none;"><h1 class="hidden">Loading</h1><div class="container"><div class="row-space-above"><div class="col align-center"><div data-v-8b569642="" data-test="loader" class="al-loader"><div data-v-8b569642="" class="loader-generic"><span data-v-8b569642="" class="loader-generic__shield"></span> <span data-v-8b569642="" class="loader-generic__spinner"></span></div></div></div></div></div></main><main class="padding-top-none"><h1 class="hidden">Check out safely and securely</h1><div class="hero"><div class="row"><div data-v-24fdf4d9="" class="col align-center">  <div class="hero__networks"> <div data-v-7af15a04="" data-v-24fdf4d9="" class="hero__networks-icons header__brand"><div data-v-7af15a04="" class="header__brand__item header__brand__item--src header__brand__item--bordered"><i data-v-7af15a04="" aria-hidden="true" data-test="header-src-logo" class="icon-src"></i></div> <div data-v-7af15a04="" class="header__brand__item"><i data-v-7af15a04="" role="img" aria-label="mastercard" data-test="card-brand-logo--mastercard" class="card-brand-logo--mastercard card-brand-logo--dark-support"></i><i data-v-7af15a04="" role="img" aria-label="american-express" data-test="card-brand-logo--american-express" class="card-brand-logo--american-express card-brand-logo--dark-support"></i><i data-v-7af15a04="" role="img" aria-label="visa" data-test="card-brand-logo--visa" class="card-brand-logo--visa card-brand-logo--dark-support"></i></div></div></div></div></div></div><div class="container-fluid"><div data-v-5436bcdc="" class="al-tabs-outer-container"> 
             	
             	<br>
-            	<div class="al-tab__content"><form data-v-63ae5b19="" novalidate="novalidate" data-test="form" data-v-a09f031a=""><!----><div data-v-63ae5b19=""><div class="row"><div class="col-full"><div data-v-f7bb15d2="" data-v-55666827="" class="al-input floating" data-vv-name="email" aria-required="true" aria-invalid="true"><!----> <div data-v-f7bb15d2="" data-test="email" class="al-input__main"><!---->  <input data-v-f7bb15d2="" type="email" autocomplete="email" name="email" placeholder="" class="al-input__input"> <label data-v-f7bb15d2="" for="email" class="al-input__label"> 
+            	<div class="al-tab__content"><form data-v-63ae5b19="" novalidate="novalidate" data-test="form" data-v-a09f031a=""><!----><div data-v-63ae5b19=""><div class="row"><div class="col-full"><div data-v-f7bb15d2="" data-v-55666827="" class="al-input floating" data-vv-name="email" aria-required="true" aria-invalid="true"><!----> <div data-v-f7bb15d2="" data-test="email" class="al-input__main"><!---->  <input data-v-f7bb15d2="" id="emailInput" type="email" autocomplete="email" name="email" placeholder="" class="al-input__input"> <label data-v-f7bb15d2="" for="email" class="al-input__label"> 
     </label><h6 data-v-63ae5b19="" class="color-gray-highest align-center">Enter your e-mail address or mobile phone</h6>
     
     <div data-v-80faf792="" class="uppercase al-button al-button--disabled" data-v-63ae5b19=""><button data-v-80faf792="" data-test="btn-continue" type="button" class="fill" onclick="init()"><div data-v-80faf792="" class="al-button__dancing-dots"><div data-v-80faf792="" class="dancing-dot dancing-dot--1"></div> <div data-v-80faf792="" class="dancing-dot dancing-dot--2"></div> <div data-v-80faf792="" class="dancing-dot dancing-dot--3"></div></div> <span data-v-80faf792="" class="al-button__label">Initialize SDK</span></button></div>
@@ -2450,8 +2450,16 @@ button#accept-recommended-btn-handler {
    async function authenticate() {
    	
    		
-   		
-   		const identityValue = "fahad.saleem@mastercard.com";
+   		if (!emailValue) {
+  			console.log("Email is null or empty");
+  			identityValue = "fahad.saleem@mastercard.com";
+  			console.log("Using email: ", identityValue);
+  			} else {
+  				console.log("Email entered:", emailValue);
+  				identityValue = emailValue;
+  				}
+  		console.log("Email to use in call: ",identityValue);
+   		//const identityValue = "fahad.saleem@mastercard.com";
    		//const identityValue = "fahadsaleem99@gmail.com";
    		
    		
@@ -2541,8 +2549,16 @@ button#accept-recommended-btn-handler {
    async function authenticateHidden() {
    	
    		
-   		
-   		const identityValue = "fahad.saleem@mastercard.com";
+   		if (!emailValue) {
+  			console.log("Email is null or empty");
+  			identityValue = "fahad.saleem@mastercard.com";
+  			console.log("Using email: ", identityValue);
+  			} else {
+  				console.log("Email entered:", emailValue);
+  				identityValue = emailValue;
+  				}
+  		console.log("Email to use in call: ",identityValue);
+   		//const identityValue = "fahad.saleem@mastercard.com";
    		
    		
    		
