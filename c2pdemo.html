@@ -2600,6 +2600,13 @@ button#accept-recommended-btn-handler {
    	iframe.contentWindow.focus();
    	
    	try {   	
+
+	const sdkIframe = document.querySelector('iframe[src^="https://sandbox.src.mastercard.com/sdk/communicator-frame"]');
+
+
+  const windowRef = sdkIframe.contentWindow;
+  console.log("Window Reference of iframe created by MA JS: ",windowRef);
+
    	
    	const authenticationParams = {
       	accountReference: accountReference,
@@ -2607,7 +2614,8 @@ button#accept-recommended-btn-handler {
       	authenticationContext: authenticationContext,
       	srcClientId:"caadb6b1-cc2d-4d16-8874-bdbbe40243ab",
       	//serviceId:"caadb6b1-cc2d-4d16-8874-bdbbe40243ab_dpa4",
-      	//windowRef:iframe.contentWindow
+      	windowRef:windowRef
+	//windowRef:iframe.contentWindow
       };
     const promiseResolvedPayload = await window.SRCSDK_MASTERCARD.authenticate(authenticationParams);
     
