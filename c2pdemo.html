@@ -2758,12 +2758,23 @@ button#accept-recommended-btn-handler {
    <script>
    async function identityLookup() {
    	
-   		const iframe = document.createElement('iframe');
+   	const emailValue = document.getElementById('emailInput').value;
+   		if (!emailValue) {
+  			console.log("Email is null or empty");
+  			identityValue = "fahad.saleem@mastercard.com";
+  			console.log("Using email: ", identityValue);
+  			} else {
+  				console.log("Email entered:", emailValue);
+  				identityValue = emailValue;
+  				}
+  		console.log("Email to use in call: ",identityValue);	
+	   
+	   //const iframe = document.createElement('iframe');
    		// Set the source URL (change this to your desired URL)
    		//iframe.src = 'https://example.com';
    		
    		// Make it hidden
-   		iframe.style.display = 'none';
+   		//iframe.style.display = 'none';
    		
    		// Optionally, you can also use these for invisibility:
    		//iframe.width = '0';
@@ -2771,9 +2782,9 @@ button#accept-recommended-btn-handler {
    		//iframe.style.visibility = 'hidden';
    		
    		// Append it to the body
-   		document.body.appendChild(iframe);
+   		//document.body.appendChild(iframe);
    		
-   		const identityValue = "fahad.saleem@mastercard.com";
+   		//const identityValue = "fahad.saleem@mastercard.com";
    		//const identityValue = "fahadsaleem99@gmail.com";
    		
    		
@@ -3042,8 +3053,8 @@ button#accept-recommended-btn-handler {
 	
 	<script>
 	async function checkoutnew() {
-		cardId1 = cardId;
-		console.log("srcDigitalCardId response:", cardId1);
+		//cardId1 = cardId;
+		//console.log("srcDigitalCardId response:", cardId1);
     
     const encCard = 'eyJhbGciOiJSU0EtT0FFUC0yNTYiLCJlbmMiOiJBMjU2R0NNIiwia2lkIjoiMTQ5MTIzLXNyYy1mcGFuLWVuY3J5cHRpb24iLCJ0eXAiOiJKV0UifQ.kJaHHtUZXL8ngIcLd7higl1Ih3lMk2sjvyNQ_-8aPQGGptnJ3qflTH7irk4f1kRWNEOZQcWtPxXGh6fb_Y4Vjl4bBM1mS3lDSFQgJ2EIl1nmVaFLLQcNHOuXpnnWDjA3zSKIaX-RtiN4--Mfe-cbxjFtgwfmgy0JQeMPbXW-qpSNz8Mm79sHFlSlbQ2odqWuxQBAhTBNlhIXHe19xgV_N_LKNhl8IqM2qU6eMMsXZpK_9ICRsPX2ZRpQch9ZWyPcfQPXlRPDyQQgYMbrHNA-JNrcl9k2RjSl1tGnWYvKYUTysDayJq4xH29QFZRZ45mPR8YWdEMF2AHNpm8nHoNKcg.yQ41gyHfTFKjumNc.8KPJ3HvpH2Wid_DhTqHQ9Fjw5ho-N0UC__Bqtuz4-syXGV9p_hz3xoxc3BPpXTi2Q7QsG9S_Uhyb0_h_1ERzsVeqzSxh_u3n2TK9KhNG5Rzmbph69Ho0Zzcf-Ca8fj94fQFOpLojqej6sUmF_JDqoQBpwm2C-_Z_g4sQrn-AfPS08J99TQCtJ7S4l4vwF9QZ3ist2sVwkA1OedZ_tqU.YLAYhdPfqVsB9_9-O7W_3Q'
 		const dpaTransactionOptions = {
