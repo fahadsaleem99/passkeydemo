@@ -2377,7 +2377,8 @@ button#accept-recommended-btn-handler {
     
     <div data-v-80faf792="" class="uppercase al-button al-button--disabled" data-v-63ae5b19=""><button data-v-80faf792="" data-test="btn-continue" type="button" class="fill" onclick="init()"><div data-v-80faf792="" class="al-button__dancing-dots"><div data-v-80faf792="" class="dancing-dot dancing-dot--1"></div> <div data-v-80faf792="" class="dancing-dot dancing-dot--2"></div> <div data-v-80faf792="" class="dancing-dot dancing-dot--3"></div></div> <span data-v-80faf792="" class="al-button__label">Initialize SDK</span></button></div>
     <!-- <div data-v-80faf792="" class="uppercase al-button al-button--disabled" data-v-63ae5b19=""><button data-v-80faf792="" data-test="btn-continue" type="button" class="fill" onclick="enroll()"><div data-v-80faf792="" class="al-button__dancing-dots"><div data-v-80faf792="" class="dancing-dot dancing-dot--1"></div> <div data-v-80faf792="" class="dancing-dot dancing-dot--2"></div> <div data-v-80faf792="" class="dancing-dot dancing-dot--3"></div></div> <span data-v-80faf792="" class="al-button__label">Enroll Card</span></button></div> -->
-    <div data-v-80faf792="" class="uppercase al-button al-button--disabled" data-v-63ae5b19=""><button data-v-80faf792="" data-test="btn-continue" type="button" class="fill" onclick="authenticate()"><div data-v-80faf792="" class="al-button__dancing-dots"><div data-v-80faf792="" class="dancing-dot dancing-dot--1"></div> <div data-v-80faf792="" class="dancing-dot dancing-dot--2"></div> <div data-v-80faf792="" class="dancing-dot dancing-dot--3"></div></div> <span data-v-80faf792="" class="al-button__label">Authenticate MCS</span></button></div>
+    <div data-v-80faf792="" class="uppercase al-button al-button--disabled" data-v-63ae5b19=""><button data-v-80faf792="" data-test="btn-continue" type="button" class="fill" onclick="lookupMethod()"><div data-v-80faf792="" class="al-button__dancing-dots"><div data-v-80faf792="" class="dancing-dot dancing-dot--1"></div> <div data-v-80faf792="" class="dancing-dot dancing-dot--2"></div> <div data-v-80faf792="" class="dancing-dot dancing-dot--3"></div></div> <span data-v-80faf792="" class="al-button__label">Lookup Authentication Methods</span></button></div>
+    <div data-v-80faf792="" class="uppercase al-button al-button--disabled" data-v-63ae5b19=""><button data-v-80faf792="" data-test="btn-continue" type="button" class="fill" onclick="authenticate()"><div data-v-80faf792="" class="al-button__dancing-dots"><div data-v-80faf792="" class="dancing-dot dancing-dot--1"></div> <div data-v-80faf792="" class="dancing-dot dancing-dot--2"></div> <div data-v-80faf792="" class="dancing-dot dancing-dot--3"></div></div> <span data-v-80faf792="" class="al-button__label">Authenticate MCS</span></button></div>		
     <div data-v-80faf792="" class="uppercase al-button al-button--disabled" data-v-63ae5b19=""><button data-v-80faf792="" data-test="btn-continue" type="button" class="fill" onclick="authenticateHidden()"><div data-v-80faf792="" class="al-button__dancing-dots"><div data-v-80faf792="" class="dancing-dot dancing-dot--1"></div> <div data-v-80faf792="" class="dancing-dot dancing-dot--2"></div> <div data-v-80faf792="" class="dancing-dot dancing-dot--3"></div></div> <span data-v-80faf792="" class="al-button__label">Authenticate Headless</span></button></div>
     
     <div data-v-80faf792="" class="uppercase al-button al-button--disabled" data-v-63ae5b19=""><button data-v-80faf792="" data-test="btn-continue" type="button" class="fill" onclick="isRecognized()"><div data-v-80faf792="" class="al-button__dancing-dots"><div data-v-80faf792="" class="dancing-dot dancing-dot--1"></div> <div data-v-80faf792="" class="dancing-dot dancing-dot--2"></div> <div data-v-80faf792="" class="dancing-dot dancing-dot--3"></div></div> <span data-v-80faf792="" class="al-button__label">isRecognized</span></button></div>
@@ -2445,9 +2446,9 @@ button#accept-recommended-btn-handler {
    
    
    </script>
-   
-   <script>
-   async function authenticate() {
+
+			<script>
+   async function lookupMethod() {
    	
    		const emailValue = document.getElementById('emailInput').value;
    		if (!emailValue) {
@@ -2510,6 +2511,64 @@ button#accept-recommended-btn-handler {
     console.error("Error in Authenticate Lookup call", promiseRejectedPayload);
     
   }  
+
+   	
+   }
+   </script>
+   
+   <script>
+   async function authenticate() {
+   	
+   		const emailValue = document.getElementById('emailInput').value;
+   		if (!emailValue) {
+  			console.log("Email is null or empty");
+  			identityValue = "fahad.saleem@mastercard.com";
+  			console.log("Using email: ", identityValue);
+  			} else {
+  				console.log("Email entered:", emailValue);
+  				identityValue = emailValue;
+  				}
+  		console.log("Email to use in call: ",identityValue);
+   		//const identityValue = "fahad.saleem@mastercard.com";
+   		//const identityValue = "fahadsaleem99@gmail.com";
+   		
+   		
+   		const accountReference = {
+        consumerIdentity: {
+          identityProvider: "SRC",
+          identityType: "EMAIL_ADDRESS",
+          identityValue: identityValue,
+        }
+      };
+      
+      const authenticationReasons = "CONSUMER_IDENTITY_VALIDATION";
+      
+      const authenticationContext = {
+      	authenticationReasons:["CONSUMER_IDENTITY_VALIDATION"],
+      	srcDpaId: "caadb6b1-cc2d-4d16-8874-bdbbe40243ab_dpa4",
+      	requestRecognition:true
+      };
+      
+      const authenticationMethod = {
+      	//authenticationMethodType: "FIDO2",  // required
+      	authenticationMethodType: "SMS_OTP",  // required
+      	authenticationSubject: "CONSUMER" // required
+      	};
+  		
+  		
+  		
+      
+      
+      
+      const authenticationMethodsLookup = {
+      	accountReference: accountReference,
+      	//authenticationMethod: authenticationMethod,
+      	authenticationContext: authenticationContext,
+      	//authenticationReasons:authenticationReasons,
+      	//windowRef:myWindow
+      };
+      
+    
       
    	
    	try {
@@ -2596,16 +2655,7 @@ button#accept-recommended-btn-handler {
       	authenticationContext: authenticationContext,
       };
       
-    try {
-    const promiseResolvedPayload = await window.SRCSDK_MASTERCARD.authenticationMethodsLookup(authenticationMethodsLookup);
-    
-    console.log("Authenticate Lookup response:", JSON.stringify(promiseResolvedPayload));
-    
-    
-  } catch (promiseRejectedPayload) {
-    console.error("Error in Authenticate Lookup call", promiseRejectedPayload);
-    
-  }  
+     
       
    	const iframe = document.createElement('iframe');
    	iframe.width = '0';
