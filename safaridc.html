@@ -422,13 +422,13 @@ iframe { position: relative; top: 1px; left: #px; height: 140%; width: 100%; rig
       	<div class="adyen-checkout__payment-method__header" style="display: flex; align-items: center; gap: 8px;">
   <span>Cards:</span>
   <button
-    class="adyen-checkout__payment-method__header__title rounded-button"
-    id="button-scheme-bebb7f5b-49ef-4eae-aa54-03d988abffbd"
-    role="radio"
-    type="button"
-    aria-checked="true"
-    style="border-radius: 20px; padding: 6px 12px; border: 1px solid #ccc; background-color: #f0f0f0; cursor: pointer;"
-    onclick="requestPresentation()"
+  id="presentationBtn"
+  class="adyen-checkout__payment-method__header__title rounded-button"
+  role="radio"
+  type="button"
+  aria-checked="true"
+  style="border-radius: 20px; padding: 6px 12px; border: 1px solid #ccc; background-color: #f0f0f0; cursor: pointer;"
+  onclick="requestPresentation()"
   >
     <span
       class="adyen-checkout__payment-method__radio adyen-checkout__payment-method__radio--selected"
@@ -518,7 +518,7 @@ iframe { position: relative; top: 1px; left: #px; height: 140%; width: 100%; rig
       }
     }
 
-    document.getElementById('presentationBtn').addEventListener('click', requestPresentation);
+    //document.getElementById('presentationBtn').addEventListener('click', requestPresentation);
   </script>
 
 	
