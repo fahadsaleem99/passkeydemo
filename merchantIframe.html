@@ -195,7 +195,7 @@
 
         <button id="buyButton" class="btn-buy">Complete Purchase</button>
 
-        <button id="buyButton2" onclick="openWin()" class="btn-buy">Complete Purchase (New Window)</button>
+        <button id="buyButton2" class="btn-buy">Complete Purchase (New Window)</button>
 
         
 
@@ -295,6 +295,7 @@ const payload = JSON.parse(text);
 
     <script>
         const buyButton = document.getElementById('buyButton');
+        const buyButton2 = document.getElementById('buyButton2');
         const statusMessage = document.getElementById('statusMessage');
         const passkeyIframe = document.getElementById('passkeyIframe');
         const displayDiv = document.getElementById('display');
@@ -325,7 +326,7 @@ const payload = JSON.parse(text);
                     
                     // Now trigger the Mastercard authentication flow
                     setTimeout(() => {
-                        openWin();
+                        launchiframe();
                     }, 1000);
                 } else {
                     passkeySupported = false;
@@ -360,8 +361,12 @@ const payload = JSON.parse(text);
             // The iframe will automatically check and send back results via postMessage
         });
 
+        buyButton2.addEventListener('click', () => {
+    openWin();               
+  });
+
         // Mastercard authentication flow
-        async function openWin() {
+        async function launchiframe() {
             showStatus('🔐 Initializing secure authentication...', 'info');
 
             // Creating iframe element
