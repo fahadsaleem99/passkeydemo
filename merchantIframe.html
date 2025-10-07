@@ -195,6 +195,10 @@
 
         <button id="buyButton" class="btn-buy">Complete Purchase</button>
 
+        <button id="buyButton2" onclick="openWin()" class="btn-buy">Complete Purchase (New Window)</button>
+
+        
+
         <div id="statusMessage" class="status-message"></div>
 
         <!-- Hidden iframe for passkey check -->
@@ -203,6 +207,91 @@
         <!-- Display area for Mastercard auth iframe -->
         <div id="display"></div>
     </div>
+
+    <script>
+    	//<button onclick="createPasskey()">Create Passkey</button>
+    	//<button onclick="verifyPasskey()">Log in with a Passkey</button>
+    	
+    	async function openWin() {
+    		//window.open("https://sandbox.src.mastercard.com/auth/?origin=http://localhost:9000", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=350,left=600,width=600,height=600");
+    		
+    		var myWindow = window.open("", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=200,left=600,width=500,height=700");
+    		
+    		//let myWindow = window.open("", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=350,left=600,width=600,height=600");
+
+    		//const view1 = document.defaultView;
+    		//console.log("THIS IS: ");
+    		//console.log(view1);
+    		//console.log(window.self);
+    		
+    		myWindow.location.href = 'https://sandbox.src.mastercard.com/auth?origin=https://fahadsaleem99.github.io';
+    		
+    		var srcserviceid = 'SECURE_COF_COMMERCE_PLATFORM#DOCUMENTATION-UPN2#01';
+    		var srcclientid = '5e0d4b84-189d-4c86-822d-590602f62062';
+    		
+    		var digcardid = 'VdTl7z2iRk6dgE-Ipy4Jrg000000000000US';
+    		var correlationid = 'abf67404-85e2-4186-a057-7eaeb0ecacA3';
+    		
+    		//var digcardid = '3el7a-XTSDOl1WQLLBhSEw000000000000US';
+    		//var correlationid = '307a74be-0df5-4c2f-8252-6d0bd7f6639d';
+    		//var authreason = 'ENROL_FINANCIAL_INSTRUMENT';
+    		var authreason = 'TRANSACTION_AUTHENTICATION';
+    		var authmethod = 'MANAGED_AUTHENTICATION';
+    		var txamt = '36.39';
+    		var txcode = 'USD';
+    		
+    		
+    		//let text = '{"authenticationContext":{"srciDpaId":"5e0d4b84-189d-4c86-822d-590602f62062_SCOF","dpaTransactionOptions":{"transactionAmount":{"transactionAmount":36.49,"transactionCurrencyCode":"USD"}},"authenticationReasons":["ENROL_FINANCIAL_INSTRUMENT"]},"authenticationMethod":{"authenticationMethodType":"3DS","authenticationSubject":"CARDHOLDER","uriData":{"uri":"https://sandbox.src.mastercard.com/auth","uriType":"WEB_URI"}},"srcCorrelationId":"78813171-eb16-4878-8a1a-b0fa0013345e","accountReference":{"srcDigitalCardId":"79765757-5d92-40a8-bbe0-e4d8f7d2e3d6"},"serviceId":"SECURE_COF_COMMERCE_PLATFORM#DOCUMENTATION-UPN2#01","srcClientId":"5e0d4b84-189d-4c86-822d-590602f62062"}';
+    		
+    		//Working MFA New
+    		//let text = '{"authenticationContext":{"dpaTransactionOptions":{"transactionAmount":{"transactionAmount":36.49,"transactionCurrencyCode":"USD"}},"authenticationReasons":["ENROL_FINANCIAL_INSTRUMENT"]},"authenticationMethod":{"authenticationMethodType":"3DS","authenticationSubject":"CARDHOLDER","uriData":{"uri":"https://sandbox.src.mastercard.com/auth","uriType":"WEB_URI"}},"srcCorrelationId":"65d5cb33-3105-4ccb-84e9-f01a82291459","accountReference":{"srcDigitalCardId":"53c40e2b-59d2-449d-b064-f57da9f2a07a"},"serviceId":"SECURE_COF_COMMERCE_PLATFORM#DOCUMENTATION-UPN2#01","srcClientId":"5e0d4b84-189d-4c86-822d-590602f62062"}';
+    		
+    		//Autofill Test
+    		//let text = '{"authenticationContext":{"dpaTransactionOptions":{"transactionAmount":{"transactionAmount":0,"transactionCurrencyCode":"USD"}},"authenticationReasons":["ENROL_FINANCIAL_INSTRUMENT"]},"authenticationMethod":{"authenticationMethodType":"3DS","authenticationSubject":"CARDHOLDER","uriData":{"uri":"https://sandbox.src.mastercard.com/auth","uriType":"WEB_URI"}},"srcCorrelationId":"81a3bf9c-de9b-4d4a-abe7-92f85818598e","accountReference":{"srcDigitalCardId":"013ce9c8-6cca-469e-b35b-8cf405128930"},"serviceId":"AUTOFILL#Mobegic_Autofill#01","srcClientId":"6ce233b9-ad52-4e96-8448-87f8773c6b60"}';
+    		
+    		
+    		//Testing TAS FIDO enrollment
+    		//let text = '{"srcCorrelationId":"a03b220d-e71e-44aa-9315-bfe27ade1608","serviceId":"SECURE_COF_COMMERCE_PLATFORM#DOCUMENTATION-UPN2#01","srcClientId":"5e0d4b84-189d-4c86-822d-590602f62062","accountReference":{"srcDigitalCardId":"xhVa3tasR22GSDH2Rl7Djg000000000000US"},"authenticationMethod":{"authenticationMethodType":"MANAGED_AUTHENTICATION"},"authenticationContext":{"authenticationReasons":["TRANSACTION_AUTHENTICATION"],"acquirerMerchantId":"550e8400","acquirerBIN":"444444","dpaTransactionOptions":{"transactionAmount":{"transactionAmount":36.49,"transactionCurrencyCode":"USD"}}}}';
+    		//let text = '{"authenticationContext":{"dpaTransactionOptions":{"transactionAmount":{"transactionAmount":36.49,"transactionCurrencyCode":"USD"}},"authenticationReasons":["ENROL_FINANCIAL_INSTRUMENT"]},"authenticationMethod":{"authenticationMethodType":"3DS","authenticationSubject":"CARDHOLDER","uriData":{"uri":"https://sandbox.src.mastercard.com/auth","uriType":"WEB_URI"}},"srcCorrelationId":"65d5cb33-3105-4ccb-84e9-f01a82291459","accountReference":{"srcDigitalCardId":"53c40e2b-59d2-449d-b064-f57da9f2a07a"},"serviceId":"SECURE_COF_COMMERCE_PLATFORM#DOCUMENTATION-UPN2#01","srcClientId":"5e0d4b84-189d-4c86-822d-590602f62062"}';
+    		let text = '{"authenticationContext":{"dpaTransactionOptions":{"transactionAmount":{"transactionAmount":'+txamt+',"transactionCurrencyCode":"'+txcode+'"}},"authenticationReasons":["'+authreason+'"]},"authenticationMethod":{"authenticationMethodType":"'+authmethod+'","authenticationSubject":"CARDHOLDER"},"srcCorrelationId":"'+correlationid+'","accountReference":{"srcDigitalCardId":"'+digcardid+'"},"serviceId":"'+srcserviceid+'","srcClientId":"'+srcclientid+'"}';
+    		
+
+const payload = JSON.parse(text);
+    		
+    		return new Promise((resolve, reject) => {
+    		window.addEventListener("message", (event) => {
+  // Do we trust the sender of this message?
+  if (event.origin !== "https://sandbox.src.mastercard.com") 
+  	{console.log('This is not what I want');
+  		return;}
+    		//window.addEventListener('message', ({ data, source, origin }) => {
+          console.log('Source::', event.source);
+          console.log('data::', event.data);
+          console.log('Origin::', event.origin);
+          switch (event.data.action) {
+            case 'Ready':
+              //return window.postMessage({
+              console.log('I sent this::', payload);
+              
+              return event.source.postMessage({	
+                action: 'Authenticate',
+                payload},event.origin)
+                
+                
+            case 'Success':
+              console.log('3DS Successfully completed')
+              myWindow.close();
+              return resolve(payload)
+            case 'Error':
+              console.log('3DS Error')
+              myWindow.close();
+              return reject(payload)
+          }
+        })
+    		
+    		})
+    	}
+    </script>
 
     <script>
         const buyButton = document.getElementById('buyButton');
