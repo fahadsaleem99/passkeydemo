@@ -574,6 +574,12 @@
 </head>
 <body>
     <div class="chat-container">
+    	
+    	
+      <button id="buyButton2" class="btn-buy">Complete Purchase (New Window)</button>
+      <div id="statusMessage" class="status-message"></div>  
+      <div id="display"></div>
+        
         <div class="chat-header">
             <h1>🛍️ Whatchamacallit Agent</h1>
             <p>Your AI-powered shopping assistant with Agentic Commerce</p>
@@ -1767,6 +1773,107 @@ async function openWin() {
   document.getElementById('testOpenWin').addEventListener('click', openWin);
 </script>
 
+<script>
+	
+	const buyButton2 = document.getElementById('buyButton2');
+        		const statusMessage = document.getElementById('statusMessage');
+        		const displayDiv = document.getElementById('display');
+        		
+        		function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message show ${type}`;
+        }
+
+        // Function to hide status message
+        function hideStatus() {
+            statusMessage.className = 'status-message';
+        }
+        
+        buyButton2.addEventListener('click', () => {
+    launchiframe();               
+  });
+  
+  
+	async function launchiframe() {
+            
+            
+            
+            showStatus('🔐 Initializing secure authentication...', 'info');
+            
+            
+
+            // Creating iframe element
+            let myWindow = document.createElement("iframe");
+
+            // Setting the values for the attributes
+            myWindow.src = `https://sandbox.src.mastercard.com/auth?origin=${window.location.origin}`;
+            myWindow.allow = "payment; publickey-credentials-create; publickey-credentials-get"; 
+            myWindow.width = "400px";
+            myWindow.height = "300px";
+            myWindow.style.border = "1px solid #e0e0e0";
+            myWindow.style.borderRadius = "8px";
+            myWindow.style.marginTop = "20px";
+
+            // Adding the created iframe to div as a child element
+            displayDiv.appendChild(myWindow);
+
+            // Authentication parameters
+            var srcserviceid = 'SECURE_COF_COMMERCE_PLATFORM#DOCUMENTATION-UPN2#01';
+            var srcclientid = '5e0d4b84-189d-4c86-822d-590602f62062';
+            //var digcardid = 'S5bWtnSbRUGezq0g7HJXjw000000000000US';
+            var digcardid = 'O8L-FZSbSW-9wkW1Ro4lVA000000000000US';
+            var correlationid = 'abf67404-85e2-4186-a057-7eaeb0ecac87';
+            var authreason = 'TRANSACTION_AUTHENTICATION';
+            var authmethod = 'MANAGED_AUTHENTICATION';
+            var txamt = '36.39';
+            var txcode = 'USD';
+
+            let text = `{"authenticationContext":{"acquirerBIN": "444444","acquirerMerchantId": "550e8400","dpaData":{"dpaName":"Sample_DPA","dpaUri":"www.samplewebsite.com"},"dpaTransactionOptions":{"dpaLocale":"en_US","merchantCategoryCode":"0008","merchantCountryCode":"US","transactionAmount":{"transactionAmount":${txamt},"transactionCurrencyCode":"${txcode}"}},"authenticationReasons":["${authreason}"]},"authenticationMethod":{"authenticationMethodType":"${authmethod}","authenticationSubject":"CARDHOLDER"},"srcCorrelationId":"${correlationid}","accountReference":{"srcDigitalCardId":"${digcardid}"},"serviceId":"${srcserviceid}","srcClientId":"${srcclientid}"}`;
+
+            const payload = JSON.parse(text);
+
+            return new Promise((resolve, reject) => {
+                window.addEventListener("message", (event) => {
+                    // Verify sender origin
+                    if (event.origin !== "https://sandbox.src.mastercard.com") {
+                        console.log('Ignoring message from untrusted origin');
+                        return;
+                    }
+
+                    console.log('Authentication event:', event.data);
+
+                    switch (event.data.action) {
+                        case 'Ready':
+                            console.log('Mastercard auth ready - sending payload:', payload);
+                            showStatus('📤 Sending authentication request...', 'info');
+                            
+                            return myWindow.contentWindow.postMessage({
+                                action: 'Authenticate',
+                                payload
+                            }, event.origin);
+
+                        case 'Success':
+                            console.log('Authentication successful!');
+                            showStatus('✅ Payment authenticated successfully!', 'success');
+                            displayDiv.removeChild(displayDiv.lastChild);
+                            buyButton.disabled = false;
+                            buyButton.innerHTML = 'Complete Purchase';
+                            return resolve(payload);
+
+                        case 'Error':
+                            console.log('Authentication error');
+                            showStatus('❌ Authentication failed. Please try again.', 'error');
+                            displayDiv.removeChild(displayDiv.lastChild);
+                            buyButton.disabled = false;
+                            buyButton.innerHTML = 'Complete Purchase';
+                            return reject(payload);
+                    }
+                });
+            });
+        }
+
+	
+</script>
 
 </body>
 </html>
