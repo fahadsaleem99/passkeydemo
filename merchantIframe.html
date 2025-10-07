@@ -357,7 +357,7 @@ const payload = JSON.parse(text);
             let myWindow = document.createElement("iframe");
 
             // Setting the values for the attributes
-            myWindow.src = "https://sandbox.src.mastercard.com/auth?origin=https://fahadsaleem99.github.io";
+            myWindow.src = `https://sandbox.src.mastercard.com/auth?origin=${window.location.origin}`;
             myWindow.allow = "payment; publickey-credentials-create; publickey-credentials-get"; 
             myWindow.width = "400px";
             myWindow.height = "300px";
