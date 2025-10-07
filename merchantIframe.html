@@ -235,7 +235,7 @@
             var txamt = '36.39';
             var txcode = 'USD';
 
-            let text = `{"authenticationContext":{"acquirerBIN": "444444","acquirerMerchantId": "550e8400","dpaData":{"dpaName":"Sample_DPA","dpaUri":"www.samplewebsite.com"},"dpaTransactionOptions":{"merchantCategoryCode":"0008","merchantCountryCode":"US","transactionAmount":{"transactionAmount":${txamt},"transactionCurrencyCode":"${txcode}"}},"authenticationReasons":["${authreason}"]},"authenticationMethod":{"authenticationMethodType":"${authmethod}","authenticationSubject":"CARDHOLDER"},"srcCorrelationId":"${correlationid}","accountReference":{"srcDigitalCardId":"${digcardid}"},"serviceId":"${srcserviceid}","srcClientId":"${srcclientid}"}`;
+            let text = `{"authenticationContext":{"acquirerBIN": "444444","acquirerMerchantId": "550e8400","dpaData":{"dpaName":"Sample_DPA","dpaUri":"www.samplewebsite.com"},"dpaTransactionOptions":{"dpaLocale":"en_US","merchantCategoryCode":"0008","merchantCountryCode":"US","transactionAmount":{"transactionAmount":${txamt},"transactionCurrencyCode":"${txcode}"}},"authenticationReasons":["${authreason}"]},"authenticationMethod":{"authenticationMethodType":"${authmethod}","authenticationSubject":"CARDHOLDER"},"srcCorrelationId":"${correlationid}","accountReference":{"srcDigitalCardId":"${digcardid}"},"serviceId":"${srcserviceid}","srcClientId":"${srcclientid}"}`;
 
 
 const payload = JSON.parse(text);
