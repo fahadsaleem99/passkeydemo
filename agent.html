@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mock Checkout - MyStore</title>
+    <title>Whatchamacallit Agent</title>
     <style>
         * {
             margin: 0;
@@ -13,202 +13,1742 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
         }
 
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 30px;
+        .chat-container {
+    width: 100%;
+    max-width: 1400px;
+    height: 90vh;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
         }
 
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
+        .chat-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
         }
 
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
+        .chat-header p {
             font-size: 14px;
+            opacity: 0.9;
         }
 
-        .product-section {
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .message.system .message-content {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+            max-width: 80%;
+            margin: 0 auto;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.6;
+            margin-top: 4px;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 18px;
+            width: fit-content;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .typing-indicator.active {
+            display: block;
+        }
+
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .typing-indicator span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+        }
+
+        .send-button {
+            width: 50px;
+            height: 50px;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .send-button:hover {
+            transform: scale(1.1);
+        }
+
+        .send-button:active {
+            transform: scale(0.95);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .confirmation-modal {
+            background: white;
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-width: 600px;
+            padding: 30px;
+            animation: slideUp 0.3s ease-out;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-handle {
+            width: 40px;
+            height: 4px;
+            background: #ccc;
+            border-radius: 2px;
+            margin: 0 auto 20px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .intent-details {
+            background: #f8f9fa;
+            border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
         }
 
-        .product-item {
+        .intent-row {
             display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
+            align-items: flex-start;
         }
 
-        .product-image {
-            width: 80px;
-            height: 80px;
-            background: #f0f0f0;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
+        .intent-row:last-child {
+            margin-bottom: 0;
         }
 
-        .product-details {
+        .intent-label {
+            font-weight: bold;
+            width: 140px;
+            color: #666;
+            flex-shrink: 0;
+        }
+
+        .intent-value {
             flex: 1;
+            color: #333;
         }
 
-        .product-name {
+        .line-items {
+            margin-top: 10px;
+        }
+
+        .line-item {
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .line-item-title {
             font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .line-item-details {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .price-breakdown {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .price-row.total {
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .modal-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cancel-button {
+            background: #f0f0f0;
             color: #333;
-            margin-bottom: 5px;
+        }
+
+        .cancel-button:hover {
+            background: #e0e0e0;
+        }
+
+        .confirm-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .confirm-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #c33;
+        }
+
+        .chat-messages::-webkit-scrollbar,
+        .confirmation-modal::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track,
+        .confirmation-modal::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb,
+        .confirmation-modal::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover,
+        .confirmation-modal::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        #agent-settings-gear {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            border: 1px solid #e5e7eb;
+            border-radius: 999px;
+            background: #ffffff;
+            cursor: pointer;
+            z-index: 2147483000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        #agent-settings-gear:hover { background: #f9fafb; }
+
+        #agent-settings-backdrop {
+            position: fixed; 
+            inset: 0; 
+            background: rgba(17,24,39,0.5);
+            display: none; 
+            z-index: 2147483000;
+        }
+        
+        #agent-settings-modal {
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            width: min(720px, 94vw); 
+            background: #fff; 
+            border-radius: 16px;
+            border: 1px solid #e5e7eb; 
+            display: none; 
+            z-index: 2147483001;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        #agent-settings-modal header {
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            padding: 14px 16px; 
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        #agent-settings-modal .content {
+            display: grid; 
+            grid-template-columns: 220px 1fr; 
+            min-height: 380px;
+        }
+        
+        #agent-settings-menu { 
+            border-right: 1px solid #e5e7eb; 
+            padding: 12px; 
+        }
+        
+        #agent-settings-menu button {
+            width: 100%; 
+            text-align: left; 
+            background: transparent; 
+            border: 0;
+            padding: 10px 12px; 
+            border-radius: 10px; 
+            cursor: pointer;
+        }
+        
+        #agent-settings-menu button.active, 
+        #agent-settings-menu button:hover {
+            background: #f3f4f6;
+        }
+        
+        #agent-settings-panel { padding: 16px; }
+        .agent-muted { color: #6b7280; font-size: 12px; }
+        .agent-input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 10px; }
+        .agent-btn { padding: 10px 14px; border: 0; border-radius: 10px; background: #111827; color: #fff; cursor: pointer; }
+        .agent-btn.ghost { background: transparent; color: #111827; border: 1px solid #e5e7eb; }
+        .agent-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+        .agent-row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+
+        /* Product card styles */
+        .product-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    min-width: 200px;
+}
+
+.product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.product-image {
+    width: 200px !important;
+    min-width: 200px !important;
+    max-width: 200px !important;
+    height: 180px !important;
+    min-height: 180px !important;
+    max-height: 180px !important;
+    object-fit: cover;
+    background: #f5f5f5;
+    display: block;
+    flex-shrink: 0;
+    -webkit-transform: translateZ(0);
+}
+
+        .product-info {
+            padding: 12px;
+        }
+
+        .product-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
         }
 
         .product-price {
-            color: #666;
             font-size: 18px;
-            font-weight: 700;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 12px;
         }
 
-        .total-section {
-            border-top: 2px solid #e0e0e0;
-            padding-top: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .btn-buy {
+        .product-buy-btn {
             width: 100%;
-            padding: 16px;
-            background: #00112c;
+            padding: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s ease;
-            margin-top: 20px;
+            transition: transform 0.2s;
         }
 
-        .btn-buy:hover {
-            background: #1c3045;
+        .product-buy-btn:hover {
+            transform: scale(1.02);
         }
 
-        .btn-buy:active {
-            background: #3a4a5c;
-        }
+        .products-grid {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
 
-        .btn-buy:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
+.products-grid .product-card {
+    min-width: 200px;
+    flex-shrink: 0;
+}
 
-        .status-message {
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 15px;
-            font-size: 14px;
-            display: none;
-        }
+.products-grid::-webkit-scrollbar {
+    height: 8px;
+}
 
-        .status-message.show {
-            display: block;
-        }
+.products-grid::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
 
-        .status-message.info {
-            background: #e5f1ff;
-            color: #0066cc;
-            border: 1px solid #b3d9ff;
-        }
+.products-grid::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
 
-        .status-message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .status-message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        #passkeyIframe {
-            display: none;
-            width: 0;
-            height: 0;
-            border: none;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            border: 2px solid #ffffff;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 0.8s linear infinite;
-            margin-left: 8px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        #display {
-            margin-top: 20px;
-        }
+.products-grid::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
     </style>
+    <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>Checkout</h1>
-        <p class="subtitle">Complete your purchase</p>
-
-        <div class="product-section">
-            <div class="product-item">
-                <div class="product-image">👕</div>
-                <div class="product-details">
-                    <div class="product-name">Premium Polo Shirt</div>
-                    <div class="product-price">$36.39</div>
-                </div>
-            </div>
-
-            <div class="total-section">
-                <span>Total:</span>
-                <span>$36.39 USD</span>
-            </div>
+    <div class="chat-container">
+    	
+    	
+      <button id="buyButton2" class="btn-buy">Complete Purchase (New Window)</button>
+      <div id="statusMessage" class="status-message"></div>  
+      <div id="display"></div>
+        
+        <div class="chat-header">
+            <h1>🛍️ Whatchamacallit Agent</h1>
+            <p>Your AI-powered shopping assistant with Agentic Commerce</p>
         </div>
 
-        <button id="buyButton" class="btn-buy">Complete Purchase</button>
+        <div class="chat-messages" id="chatMessages">
+    <div class="message assistant">
+        <div class="message-content">
+            👋 Hi! I'm your shopping assistant powered by the Agentic Commerce Protocol.
+            <br><br>
+            I can help you:
+            <br>• Find and purchase products
+            <br>• Complete secure checkouts
+            <br>• Track your orders
+            <br><br>
+            Try asking: "Buy me a pair of running shoes for under $70"
+        </div>
+    </div>
+</div>
 
-        <button id="buyButton2" class="btn-buy">Complete Purchase (New Window)</button>
+        <div class="typing-indicator" id="typingIndicator">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
 
-        
+        <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+                <input 
+                    type="text" 
+                    class="chat-input" 
+                    id="chatInput" 
+                    placeholder="Type your message..."
+                    autocomplete="off"
+                />
+                <button class="send-button" id="sendButton">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 8L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
 
-        <div id="statusMessage" class="status-message"></div>
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="confirmation-modal">
+            <div class="modal-handle"></div>
+            <div class="modal-title">Confirm Purchase</div>
+            <div id="errorContainer"></div>
+            <div class="intent-details" id="intentDetails"></div>
+            <div class="modal-actions">
+                <button class="modal-button cancel-button" onclick="closeConfirmation()">Cancel</button>
+                <button class="modal-button confirm-button" onclick="confirmAutomation()">Confirm & Pay</button>
+            </div>
+        </div>
+    </div>
 
-        <!-- Hidden iframe for passkey check -->
-        <iframe id="passkeyIframe" src="" allow="publickey-credentials-get; publickey-credentials-create"></iframe>
+    <button id="agent-settings-gear" title="Settings" aria-label="Settings">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8.91 4.1H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06c-.46.46-.58 1.14-.33 1.82a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+    </button>
 
-        <!-- Display area for Mastercard auth iframe -->
-        <div id="display"></div>
+    <div id="agent-settings-backdrop"></div>
+    <div id="agent-settings-modal" role="dialog" aria-modal="true" aria-labelledby="agent-settings-title">
+        <header>
+            <h3 id="agent-settings-title">Settings</h3>
+            <button id="agent-settings-close" class="agent-btn ghost">Close</button>
+        </header>
+        <div class="content">
+            <nav id="agent-settings-menu">
+                <button id="agent-menu-account" class="active">Account</button>
+                <button id="agent-menu-payment">Payment</button>
+                <button id="agent-menu-shipping">Shipping</button>
+            </nav>
+            <section id="agent-settings-panel">
+                <div id="agent-panel-account">
+                    <div class="agent-row">
+                        <label class="agent-muted">Agent Stripe Publishable Key</label>
+                        <input id="agent-pk" class="agent-input" placeholder="pk_test_..." />
+                    </div>
+                    <p class="agent-muted" style="margin-top:8px;">Used to initialize Stripe.js locally. Test keys for sandbox.</p>
+                </div>
+
+                <div id="agent-panel-payment" style="display:none;">
+                    <p class="agent-muted">Add a card on file for the Agent. A Stripe <span class="agent-mono">PaymentMethod</span> will be created in your Agent account.</p>
+                    <div id="agent-payment-element" style="margin: 8px 0;"></div>
+                    <div>
+                        <button id="agent-create-pm" class="agent-btn ghost" disabled>Create / Update Payment Method</button>
+                        <span id="agent-pm-out" class="agent-mono agent-muted"></span>
+                    </div>
+                </div>
+
+                <div id="agent-panel-shipping" style="display:none;">
+                    <p class="agent-muted">Enter a shipping address for this checkout session. It will be sent with your order.</p>
+                    <div class="agent-row" style="grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:8px;">
+                        <label class="agent-muted">Address line 1
+                            <input id="set_ship_line1" class="agent-input" placeholder="123 Main St" />
+                        </label>
+                        <label class="agent-muted">Address line 2 (optional)
+                            <input id="set_ship_line2" class="agent-input" placeholder="Apt 4B" />
+                        </label>
+                    </div>
+                    <div class="agent-row" style="grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:8px;">
+                        <label class="agent-muted">City
+                            <input id="set_ship_city" class="agent-input" placeholder="San Francisco" />
+                        </label>
+                        <label class="agent-muted">State/Province
+                            <input id="set_ship_state" class="agent-input" placeholder="CA" />
+                        </label>
+                    </div>
+                    <div class="agent-row" style="grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:8px;">
+                        <label class="agent-muted">Postal code
+                            <input id="set_ship_postal" class="agent-input" placeholder="94103" />
+                        </label>
+                        <label class="agent-muted">Country (ISO-2)
+                            <input id="set_ship_country" class="agent-input" placeholder="US" maxlength="2" />
+                        </label>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px; margin-top:8px;">
+                        <button id="agent-save-shipping" class="agent-btn ghost">Save shipping</button>
+                        <span id="agent-shipping-status" class="agent-muted"></span>
+                    </div>
+                </div>
+            </section>
+        </div>
     </div>
 
     <script>
+        const BACKEND_API_URL = '/api/chat';
+        let currentCheckoutSession = null;
+        let conversationHistory = [];
+        let merchantConfig = null;
+        
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const modalOverlay = document.getElementById('modalOverlay');
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+        sendButton.addEventListener('click', sendMessage);
+
+        async function initializeMerchantConfig() {
+            try {
+                const response = await fetch('/api/config');
+                merchantConfig = await response.json();
+                console.log('Merchant config loaded:', merchantConfig);
+            } catch (error) {
+                console.error('Failed to load merchant config:', error);
+            }
+        }
+        initializeMerchantConfig();
+
+        // Fetch products from merchant server
+        async function fetchProductsFromMerchant(query = '', maxPrice = null) {
+            try {
+                const url = new URL('/products', window.location.origin);
+                if (query) url.searchParams.set('q', query);
+                if (maxPrice) url.searchParams.set('max_price', maxPrice);
+                
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch products');
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                return [];
+            }
+        }
+
+        // Display products as cards in the chat
+        // Display products as cards in the chat
+function displayProductsInChat(products) {
+    if (!products || products.length === 0) {
+        addMessage('No products found matching your criteria.', 'system');
+        return;
+    }
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message assistant';
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    contentDiv.style.maxWidth = '90%';
+    
+    const header = document.createElement('div');
+    header.innerHTML = `Found ${products.length} product${products.length > 1 ? 's' : ''}:`;
+    header.style.marginBottom = '12px';
+    header.style.fontWeight = '600';
+    contentDiv.appendChild(header);
+    
+    const grid = document.createElement('div');
+    grid.className = 'products-grid';
+    
+    products.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        
+        // Create elements programmatically for better Safari compatibility
+        const img = document.createElement('img');
+        img.src = product.image || 'https://via.placeholder.com/200x180?text=No+Image';
+        img.alt = product.title;
+        img.className = 'product-image';
+        img.onerror = function() { this.src = 'https://via.placeholder.com/200x180?text=No+Image'; };
+        
+        const productInfo = document.createElement('div');
+        productInfo.className = 'product-info';
+        
+        const productTitle = document.createElement('div');
+        productTitle.className = 'product-title';
+        productTitle.textContent = product.title;
+        
+        const productPrice = document.createElement('div');
+        productPrice.className = 'product-price';
+        productPrice.textContent = `$${(product.price / 100).toFixed(2)}`;
+        
+        const buyBtn = document.createElement('button');
+        buyBtn.className = 'product-buy-btn';
+        buyBtn.textContent = 'Buy Now';
+        buyBtn.onclick = () => buyProduct(product.sku, product.title, product.price);
+        
+        productInfo.appendChild(productTitle);
+        productInfo.appendChild(productPrice);
+        productInfo.appendChild(buyBtn);
+        
+        card.appendChild(img);
+        card.appendChild(productInfo);
+        grid.appendChild(card);
+    });
+    
+    contentDiv.appendChild(grid);
+    messageDiv.appendChild(contentDiv);
+    chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+        // Handle buying a product from the display
+        window.buyProduct = async function(sku, title, price) {
+            addMessage(`I would like to buy the ${title}`, 'user');
+            
+            if (!window.__shippingAddress || !isValidAddress(window.__shippingAddress)) {
+                addMessage('Please set up your shipping address in Settings → Shipping before checkout.', 'system');
+                try { document.getElementById("agent-settings-gear").click(); } catch(e) {}
+                return;
+            }
+            
+            await createCheckoutSession({
+                sku: sku,
+                quantity: 1,
+                product_query: title
+            });
+        }
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            chatInput.value = '';
+            sendButton.disabled = true;
+            typingIndicator.classList.add('active');
+            scrollToBottom();
+
+            const isBuyIntent = await analyzeForBuyIntent(message);
+if (isBuyIntent && isBuyIntent.browsed) {
+    // Product browse already handled, skip Claude
+} else if (isBuyIntent) {
+    await createCheckoutSession(isBuyIntent);
+} else {
+    const response = await sendToClaude(message);
+    addMessage(response, 'assistant');
+}
+
+            typingIndicator.classList.remove('active');
+            sendButton.disabled = false;
+        }
+
+        async function analyzeForBuyIntent(message) {
+            const lowerMsg = message.toLowerCase();
+            
+            // Check for product browsing keywords
+            const browseKeywords = ['show', 'list', 'find', 'search', 'browse', 'see', 'display'];
+            const productKeywords = ['jersey', 'jerseys', 'shirt', 'shirts', 'product', 'products', 'arsenal'];
+            
+            const isBrowseIntent = browseKeywords.some(kw => lowerMsg.includes(kw)) && 
+                                  productKeywords.some(kw => lowerMsg.includes(kw));
+            
+            if (isBrowseIntent) {
+    addMessage('Searching for products...', 'system');
+    
+    // Extract price if mentioned
+    const priceMatch = message.match(/under\s+\$?(\d+)/i) || message.match(/\$(\d+)/);
+    const maxPrice = priceMatch ? parseInt(priceMatch[1]) * 100 : null;
+    
+    // Add 2 second delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Fetch and display products
+    const products = await fetchProductsFromMerchant('arsenal', maxPrice);
+    displayProductsInChat(products);
+    return { browsed: true }; // Changed from null to an object
+}
+            
+            // Check for buy intent
+            const strongBuyKeywords = ['buy', 'purchase', 'order', 'checkout'];
+            const hasBuyIntent = strongBuyKeywords.some(keyword => lowerMsg.includes(keyword));
+            
+            if (!hasBuyIntent) return null;
+            
+            // Extract product details using Claude
+            const prompt = `Extract purchase details from: "${message}"\n\nRespond with JSON only:\n{"product_query":"search term","max_price":null,"quantity":1}`;
+
+            try {
+                const response = await fetch(BACKEND_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: prompt })
+                });
+
+                if (!response.ok) {
+                    console.error('API error:', response.status);
+                    return null;
+                }
+
+                const data = await response.json();
+                if (data.error) {
+                    console.error('API error:', data.error);
+                    return null;
+                }
+                
+                let text = data.text || '';
+                if (text.includes('{')) {
+                    const jsonStart = text.indexOf('{');
+                    const jsonEnd = text.lastIndexOf('}') + 1;
+                    text = text.substring(jsonStart, jsonEnd);
+                }
+
+                return JSON.parse(text);
+            } catch (error) {
+                console.error('Error analyzing intent:', error);
+                return null;
+            }
+        }
+
+        async function createCheckoutSession(buyIntent) {
+            if (!window.__shippingAddress || !isValidAddress(window.__shippingAddress)) {
+                addMessage('Open Settings → Shipping to enter your shipping address before checkout.', 'system');
+                try { document.getElementById("agent-settings-gear").click(); } catch(e) {}
+                return;
+            }
+
+            try {
+                addMessage('Searching for products...', 'system');
+
+                const lineItems = [{ sku: (buyIntent && buyIntent.sku) ? buyIntent.sku : "ars-98-home", quantity: buyIntent.quantity || 1 }];
+
+                const response = await fetch('/checkout_sessions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        line_items: lineItems,
+                        fulfillment_address: window.__shippingAddress,
+                        buyer_identity: { email: "user@example.com" },
+                        metadata: { source: "chat", query: buyIntent.product_query }
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to create checkout session');
+
+                currentCheckoutSession = await response.json();
+                addMessage('Found products! Review your order.', 'system');
+                showCheckoutModal(currentCheckoutSession);
+            } catch (error) {
+                console.error('Error creating checkout:', error);
+                addMessage('Sorry, I encountered an error creating your checkout.', 'system');
+            }
+        }
+
+        // Replace your showCheckoutModal function with this updated version:
+
+function showCheckoutModal(session) {
+    const detailsDiv = document.getElementById('intentDetails');
+    const errorDiv = document.getElementById('errorContainer');
+    
+    detailsDiv.innerHTML = '';
+    errorDiv.innerHTML = '';
+
+    if (session.errors && session.errors.length > 0) {
+        session.errors.forEach(error => {
+            errorDiv.innerHTML += `<div class="error-message">${error.message}</div>`;
+        });
+    }
+
+    // Line Items with Images
+    let lineItemsHtml = '<div class="line-items">';
+    session.line_items.forEach(item => {
+        // Fetch product details to get the image
+        fetch(`/products/${item.sku}`)
+            .then(res => res.json())
+            .then(product => {
+                const itemCard = document.querySelector(`[data-item-id="${item.id}"]`);
+                if (itemCard && product.image) {
+                    const imgContainer = itemCard.querySelector('.line-item-image-placeholder');
+                    if (imgContainer) {
+                        imgContainer.innerHTML = `<img src="${product.image}" alt="${item.title}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">`;
+                    }
+                }
+            })
+            .catch(err => console.error('Failed to fetch product image:', err));
+
+        lineItemsHtml += `
+            <div class="line-item" data-item-id="${item.id}" style="display: flex; gap: 12px; align-items: center;">
+                <div class="line-item-image-placeholder" style="width: 80px; height: 80px; background: #f0f0f0; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                    <span style="font-size: 24px;">📦</span>
+                </div>
+                <div style="flex: 1;">
+                    <div class="line-item-title">${item.title}</div>
+                    <div class="line-item-details">
+                        Qty: ${item.quantity} • $${(item.unit_price/100).toFixed(2)}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    lineItemsHtml += '</div>';
+    
+    // Fetch payment method details
+    // Fetch payment method details
+let paymentHtml = '';
+if (window.__agentPmId && window.__cardDetails) {
+    const card = window.__cardDetails;
+    const brandLower = card.brand.toLowerCase();
+    
+    // Map card brands to image files
+    const cardImages = {
+        'visa': '/images/visa.png',
+        'mastercard': '/images/mastercard.png'
+    };
+    
+    const cardImageUrl = cardImages[brandLower] || null;
+    
+    paymentHtml = `
+        <div class="intent-row">
+            <span class="intent-label">Payment:</span>
+            <span class="intent-value">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    ${cardImageUrl ? 
+                        `<img src="${cardImageUrl}" alt="${card.brand}" style="height: 32px; width: auto; border-radius: 4px; border: 1px solid #e0e0e0;">` :
+                        `<div style="padding: 8px 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; font-weight: 600; font-size: 14px; min-width: 80px; text-align: center;">
+                            ${card.brand.toUpperCase()}
+                        </div>`
+                    }
+                    <span style="font-family: monospace;">•••• ${card.last4}</span>
+                </div>
+            </span>
+        </div>
+    `;
+}
+
+
+
+    // Price Breakdown
+    const amounts = session.amounts;
+    const priceHtml = `
+        <div class="price-breakdown">
+            <div class="price-row"><span>Subtotal:</span><span>$${amounts.subtotal}</span></div>
+            <div class="price-row"><span>Shipping:</span><span>$${amounts.shipping}</span></div>
+            <div class="price-row"><span>Tax:</span><span>$${amounts.tax}</span></div>
+            <div class="price-row total"><span>Total:</span><span>$${amounts.total}</span></div>
+        </div>
+    `;
+
+    // Shipping Address
+    const addr = session.fulfillment_address;
+    const addressHtml = addr ? `
+        <div class="intent-row">
+            <span class="intent-label">Ship to:</span>
+            <span class="intent-value">
+                ${addr.line1}<br>
+                ${addr.city}, ${addr.state} ${addr.postal_code}
+            </span>
+        </div>
+    ` : '';
+
+    detailsDiv.innerHTML = `
+        <div class="intent-row">
+            <span class="intent-label">Items:</span>
+            <span class="intent-value">${lineItemsHtml}</span>
+        </div>
+        ${addressHtml}
+        ${paymentHtml}
+        <div class="intent-row">
+            <span class="intent-label">Order Summary:</span>
+            <span class="intent-value">${priceHtml}</span>
+        </div>
+    `;
+
+    modalOverlay.classList.add('active');
+}
+
+        function closeConfirmation() {
+            modalOverlay.classList.remove('active');
+            currentCheckoutSession = null;
+        }
+
+        async function confirmAutomation() {
+    if (!currentCheckoutSession) return;
+
+    // Keep modal open and replace content with iframe container
+    const modalContent = document.querySelector('.confirmation-modal');
+    
+    modalContent.innerHTML = `
+        <div class="modal-handle"></div>
+        <div class="modal-title">Verify Payment</div>
+        <div id="iframe-container" style="padding: 20px; text-align: center; min-height: 400px;">
+            <p id="status-message" style="margin-bottom: 20px; color: #666;"></p>
+        </div>
+    `;
+
+    const iframeContainer = document.getElementById('iframe-container');
+    const statusMessage = document.getElementById('status-message');
+
+    // Helper function to show status messages
+    function showStatus(message, type) {
+        statusMessage.textContent = message;
+        statusMessage.style.color = type === 'error' ? '#c33' : type === 'success' ? '#28a745' : '#666';
+    }
+
+    try {
+        // Launch iframe authentication
+        showStatus('🔐 Initializing secure authentication...', 'info');
+        
+        // Setting the values for the attributes
+        		let myWindow = document.createElement("iframe");
+            myWindow.src = `https://sandbox.src.mastercard.com/auth?origin=${window.location.origin}`;
+            myWindow.allow = "payment; publickey-credentials-create; publickey-credentials-get"; 
+            myWindow.width = "400px";
+            myWindow.height = "300px";
+            myWindow.style.border = "1px solid #e0e0e0";
+            myWindow.style.borderRadius = "8px";
+            myWindow.style.marginTop = "20px";
+
+            // Adding the created iframe to div as a child element
+            iframeContainer.appendChild(myWindow);
+
+            // Authentication parameters
+            var srcserviceid = 'SECURE_COF_COMMERCE_PLATFORM#DOCUMENTATION-UPN2#01';
+            var srcclientid = '5e0d4b84-189d-4c86-822d-590602f62062';
+            //var digcardid = 'S5bWtnSbRUGezq0g7HJXjw000000000000US';
+            var digcardid = 'O8L-FZSbSW-9wkW1Ro4lVA000000000000US';
+            var correlationid = 'abf67404-85e2-4186-a057-7eaeb0ecac87';
+            var authreason = 'TRANSACTION_AUTHENTICATION';
+            var authmethod = 'MANAGED_AUTHENTICATION';
+            var txamt = '36.39';
+            var txcode = 'USD';
+
+            let text = `{"authenticationContext":{"acquirerBIN": "444444","acquirerMerchantId": "550e8400","dpaData":{"dpaName":"WhatchamacallitAgent","dpaUri":"www.agent.com"},"dpaTransactionOptions":{"dpaLocale":"en_US","merchantCategoryCode":"0008","merchantCountryCode":"US","transactionAmount":{"transactionAmount":${txamt},"transactionCurrencyCode":"${txcode}"}},"authenticationReasons":["${authreason}"]},"authenticationMethod":{"authenticationMethodType":"${authmethod}","authenticationSubject":"CARDHOLDER"},"srcCorrelationId":"${correlationid}","accountReference":{"srcDigitalCardId":"${digcardid}"},"serviceId":"${srcserviceid}","srcClientId":"${srcclientid}"}`;
+
+        const payload = JSON.parse(text);
+        
+        // Wait for authentication via postMessage
+        await new Promise((resolve, reject) => {
+            const messageHandler = (event) => {
+                // Verify sender origin
+                if (event.origin !== "https://sandbox.src.mastercard.com") {
+                    console.log('Ignoring message from untrusted origin');
+                    return;
+                }
+                
+                console.log('Authentication event:', event.data);
+                
+                switch (event.data.action) {
+                    case 'Ready':
+                        console.log('Mastercard auth ready - sending payload:', payload);
+                        showStatus('📤 Sending authentication request...', 'info');
+                        
+                        myWindow.contentWindow.postMessage({
+                            action: 'Authenticate',
+                            payload
+                        }, event.origin);
+                        break;
+                        
+                    case 'Success':
+                        console.log('Authentication successful!');
+                        showStatus('✅ Payment authenticated successfully!', 'success');
+                        window.removeEventListener('message', messageHandler);
+                        resolve(payload);
+                        break;
+                        
+                    case 'Error':
+                        console.log('Authentication error');
+                        showStatus('❌ Authentication failed. Please try again.', 'error');
+                        window.removeEventListener('message', messageHandler);
+                        reject(new Error('Authentication failed'));
+                        break;
+                }
+            };
+            
+            window.addEventListener('message', messageHandler);
+        });
+        
+        // Remove iframe after success
+        if (myWindow.parentNode) {
+            iframeContainer.removeChild(myWindow);
+        }
+        
+        showStatus('Processing payment...', 'info');
+        
+        // Now proceed with payment processing
+        await attachSPTToCheckout(currentCheckoutSession.id);
+        await completeCheckout(currentCheckoutSession.id);
+        
+        // Close modal and show success messages in chat
+        closeConfirmation();
+
+    } catch (error) {
+        console.error('Authentication error:', error);
+        showStatus('❌ Authentication failed. Please try again.', 'error');
+        
+        // Add close button on error
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'modal-button cancel-button';
+        closeBtn.textContent = 'Close';
+        closeBtn.style.marginTop = '20px';
+        closeBtn.onclick = closeConfirmation;
+        iframeContainer.appendChild(closeBtn);
+    }
+}
+
+        async function attachSPTToCheckout(sessionId) {
+            try {
+                addMessage('Setting up payment...', 'system');
+
+                if (!window.__agentPmId) {
+                    throw new Error('No payment method on file. Please add a card in Settings → Payment.');
+                }
+
+                if (!merchantConfig || !merchantConfig.merchant.bnid) {
+                    throw new Error('Merchant configuration not loaded');
+                }
+
+                const sessionResponse = await fetch(`/checkout_sessions/${sessionId}`);
+                const session = await sessionResponse.json();
+                
+                if (!session || !session.amounts) {
+                    throw new Error('Invalid checkout session');
+                }
+
+                const amountCents = Math.round(parseFloat(session.amounts.total) * 100);
+
+                const spt = await window.issueSPT({
+                    bnid: merchantConfig.merchant.bnid,
+                    amount: amountCents,
+                    currency: session.amounts.currency || 'usd',
+                    expiresMinutes: 20
+                });
+
+                console.log('SPT issued:', spt.id);
+
+                const updateResponse = await fetch(`/checkout_sessions/${sessionId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        payment_method_token: spt.id
+                    })
+                });
+
+                if (!updateResponse.ok) {
+                    throw new Error('Failed to attach payment method to session');
+                }
+
+                const updatedSession = await updateResponse.json();
+                console.log('Payment method attached to session');
+                currentCheckoutSession = updatedSession;
+
+            } catch (error) {
+                console.error('Error setting up payment:', error);
+                throw new Error(`Payment setup failed: ${error.message}`);
+            }
+        }
+
+        async function completeCheckout(sessionId) {
+            try {
+                addMessage('Processing payment...', 'system');
+
+                const response = await fetch(`/checkout_sessions/${sessionId}/complete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('Checkout failed:', errorData);
+                    
+                    if (errorData.errors && errorData.errors.length > 0) {
+                        const errorMsg = errorData.errors.map(e => e.message).join(', ');
+                        throw new Error(errorMsg);
+                    }
+                    throw new Error('Checkout failed');
+                }
+
+                const completedSession = await response.json();
+
+                if (completedSession.status === 'completed') {
+                    addMessage(`Order confirmed! Session: ${completedSession.id}`, 'system');
+                    addMessage('You will receive a confirmation email shortly.', 'system');
+                } else if (completedSession.errors && completedSession.errors.length > 0) {
+                    const errorMsg = completedSession.errors.map(e => e.message).join(', ');
+                    addMessage(`${errorMsg}`, 'system');
+                } else {
+                    addMessage('Payment processing failed. Please try again.', 'system');
+                }
+
+                currentCheckoutSession = null;
+
+            } catch (error) {
+                console.error('Checkout error:', error);
+                addMessage(`${error.message}`, 'system');
+                currentCheckoutSession = null;
+            }
+        }
+
+        async function sendToClaude(message) {
+            conversationHistory.push({ role: 'user', content: message });
+
+            try {
+                const response = await fetch(BACKEND_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: message,
+                        context: conversationHistory
+                    })
+                });
+
+                if (!response.ok) {
+                    console.error('API error:', response.status);
+                    throw new Error('API request failed');
+                }
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    console.error('API error:', data.error);
+                    throw new Error('API request failed');
+                }
+                
+                const reply = data.text || 'No response received';
+                conversationHistory.push({ role: 'assistant', content: reply });
+                return reply;
+            } catch (error) {
+                console.error('Error calling Claude:', error);
+                return 'Sorry, I encountered an error. Please try again.';
+            }
+        }
+
+        function addMessage(text, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = text.replace(/\n/g, '<br>');
+            
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'message-time';
+            timeDiv.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            contentDiv.appendChild(timeDiv);
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                closeConfirmation();
+            }
+        });
+    </script>
+
+    <script>
+        window.__agentPmId = "pm_1SF3d3IywcNoAVfKgsCPCMeg";
+        //window.__shippingAddress = null;
+        window.__shippingAddress = "123 Main Street, San Francisco, CA 94105";
+        window.__cardDetails = null;
+// Load card details if payment method exists
+(async function loadCardDetails() {
+    if (window.__agentPmId) {
+        try {
+            const pmResponse = await fetch(`/agent/payment_methods/${window.__agentPmId}`);
+            if (pmResponse.ok) {
+                const pmData = await pmResponse.json();
+                if (pmData.card) {
+                    window.__cardDetails = {
+                        brand: pmData.card.brand,
+                        last4: pmData.card.last4
+                    };
+                    console.log('Card details loaded:', window.__cardDetails);
+                }
+            }
+        } catch (error) {
+            console.log('Could not load card details:', error);
+        }
+    }
+})();
+
+        window.issueSPT = async function ({ bnid, amount, currency='usd', expiresMinutes=20, externalId=null }) {
+            if (!window.__agentPmId) throw new Error('No PaymentMethod on file. Open Settings → Payment and create one.');
+            if (!bnid) throw new Error('Missing seller BNID');
+            const expires_at = Math.floor(Date.now()/1000) + (expiresMinutes * 60);
+            const body = {
+                payment_method: window.__agentPmId,
+                usage_limits: { currency, max_amount: Number(amount), expires_at },
+                seller_details: { network_id: bnid }
+            };
+            if (externalId) body.seller_details.external_id = externalId;
+            const resp = await fetch('/agent/issue_spt', {
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const data = await resp.json();
+            if (data.error) throw new Error(data.error.message || 'Failed to issue SPT');
+            return data;
+        };
+
+        const gear = document.getElementById('agent-settings-gear');
+        const backdrop = document.getElementById('agent-settings-backdrop');
+        const modal = document.getElementById('agent-settings-modal');
+        const closeBtn = document.getElementById('agent-settings-close');
+        const menuAccount = document.getElementById('agent-menu-account');
+        const menuPayment = document.getElementById('agent-menu-payment');
+        const menuShipping = document.getElementById('agent-menu-shipping');
+        const panelAccount = document.getElementById('agent-panel-account');
+        const panelPayment = document.getElementById('agent-panel-payment');
+        const panelShipping = document.getElementById('agent-panel-shipping');
+
+        function openModal() { 
+            backdrop.style.display = 'block'; 
+            modal.style.display = 'block'; 
+        }
+        
+        function closeModal() { 
+            modal.style.display = 'none'; 
+            backdrop.style.display = 'none'; 
+        }
+        
+        gear.addEventListener('click', openModal);
+        closeBtn.addEventListener('click', closeModal);
+        backdrop.addEventListener('click', closeModal);
+        document.addEventListener('keydown', (e) => { 
+            if (e.key === 'Escape') closeModal(); 
+        });
+
+        function selectMenu(which) {
+            const isAccount = which === 'account';
+            const isPayment = which === 'payment';
+            const isShipping = which === 'shipping';
+            
+            menuAccount.classList.toggle('active', isAccount);
+            menuPayment.classList.toggle('active', isPayment);
+            menuShipping.classList.toggle('active', isShipping);
+            
+            panelAccount.style.display = isAccount ? 'block' : 'none';
+            panelPayment.style.display = isPayment ? 'block' : 'none';
+            panelShipping.style.display = isShipping ? 'block' : 'none';
+            
+            if (isPayment) initStripePaymentPanel();
+            if (isShipping) hydrateShippingIfPresent();
+        }
+        
+        window.__activateSettingsTab = selectMenu;
+        
+        menuAccount.addEventListener('click', () => selectMenu('account'));
+        menuPayment.addEventListener('click', () => selectMenu('payment'));
+        menuShipping.addEventListener('click', () => selectMenu('shipping'));
+
+        let stripe, elements, paymentElement;
+        
+        async function initStripePaymentPanel() {
+            const pk = document.getElementById('agent-pk').value.trim();
+            const out = document.getElementById('agent-pm-out');
+            if (!pk) {
+                out.textContent = 'Enter publishable key in Account tab.';
+                return;
+            }
+            if (!stripe) stripe = Stripe(pk);
+            
+            const r = await fetch('/agent/setup_intents', { method: 'POST' });
+            const j = await r.json();
+            if (!j.client_secret) {
+                out.textContent = 'Failed to create SetupIntent.';
+                return;
+            }
+            if (!elements) { 
+                elements = stripe.elements({ clientSecret: j.client_secret }); 
+            }
+            if (paymentElement) paymentElement.unmount();
+            paymentElement = elements.create('payment');
+            paymentElement.mount('#agent-payment-element');
+            document.getElementById('agent-create-pm').disabled = false;
+            out.textContent = 'Ready.';
+        }
+
+        async function createOrUpdatePaymentMethod() {
+    const out = document.getElementById('agent-pm-out');
+    try {
+        const { setupIntent, error } = await stripe.confirmSetup({ 
+            elements, 
+            redirect: 'if_required' 
+        });
+        if (error) {
+            out.textContent = 'Error: ' + (error.message || 'Setup failed');
+            return;
+        }
+        window.__agentPmId = setupIntent.payment_method;
+        
+        // Fetch the PaymentMethod details to get card info
+        try {
+            const pmResponse = await fetch(`/agent/payment_methods/${setupIntent.payment_method}`);
+            
+            if (pmResponse.ok) {
+                const pmData = await pmResponse.json();
+                if (pmData.card) {
+                    window.__cardDetails = {
+                        brand: pmData.card.brand,
+                        last4: pmData.card.last4
+                    };
+                    out.textContent = `PaymentMethod created: ${pmData.card.brand.toUpperCase()} ••••${pmData.card.last4}`;
+                } else {
+                    out.textContent = 'PaymentMethod created: ' + window.__agentPmId;
+                }
+            }
+        } catch (fetchError) {
+            console.log('Could not fetch card details:', fetchError);
+            out.textContent = 'PaymentMethod created: ' + window.__agentPmId;
+        }
+        
+        window.dispatchEvent(new CustomEvent('agent:paymentmethod:updated', { 
+            detail: { payment_method: window.__agentPmId }
+        }));
+        closeModal();
+    } catch (e) {
+        out.textContent = 'Error: ' + e.message;
+    }
+}
+        
+        document.getElementById('agent-create-pm').addEventListener('click', createOrUpdatePaymentMethod);
+
+        function isValidAddress(addr) {
+            return !!(addr && addr.line1 && addr.city && addr.state && addr.postal_code && addr.country);
+        }
+
+        function getShippingFromSettings() {
+            const g = (id) => (document.getElementById(id)?.value || '').trim();
+            return {
+                line1: g('set_ship_line1'),
+                line2: g('set_ship_line2'),
+                city: g('set_ship_city'),
+                state: g('set_ship_state'),
+                postal_code: g('set_ship_postal'),
+                country: g('set_ship_country').toUpperCase()
+            };
+        }
+
+        function hydrateShippingIfPresent() {
+            if (!window.__shippingAddress) return;
+            const s = window.__shippingAddress;
+            const set = (id, v) => { 
+                const el = document.getElementById(id);
+                if (el) el.value = v || ''; 
+            };
+            set('set_ship_line1', s.line1);
+            set('set_ship_line2', s.line2);
+            set('set_ship_city', s.city);
+            set('set_ship_state', s.state);
+            set('set_ship_postal', s.postal_code);
+            set('set_ship_country', s.country);
+            const st = document.getElementById('agent-shipping-status');
+            if (st) st.textContent = 'Loaded saved address.';
+        }
+
+        async function saveShippingInSettings() {
+            const status = document.getElementById('agent-shipping-status');
+            const addr = getShippingFromSettings();
+            if (!isValidAddress(addr)) {
+                if (status) status.textContent = 'Please fill all required fields.';
+                return;
+            }
+            window.__shippingAddress = {
+                line1: addr.line1,
+                line2: addr.line2 || undefined,
+                city: addr.city,
+                state: addr.state,
+                postal_code: addr.postal_code,
+                country: addr.country
+            };
+            if (status) status.textContent = 'Shipping saved.';
+        }
+        
+        document.getElementById('agent-save-shipping').addEventListener('click', saveShippingInSettings);
+
+        selectMenu('account');
+    </script>
+
+		<!-- Temporary openWin test helper -->
+<script>
+/**
+ * Centered iframe auth flow with passkey support + verbose logging.
+ * Usage: openWin()  ← call this directly from a user click handler.
+ */
+async function openWin1() {
+  // ---- Overlay + centered modal ----
+  const overlay = document.createElement('div');
+  Object.assign(overlay.style, {
+    position: 'fixed',
+    inset: '0',
+    background: 'rgba(0,0,0,0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: '2147483000'
+  });
+
+  const modal = document.createElement('div');
+  Object.assign(modal.style, {
+    background: '#fff',
+    borderRadius: '12px',
+    boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
+    width: '420px',
+    height: '360px',
+    maxWidth: '95vw',
+    maxHeight: '85vh',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    position: 'relative'
+  });
+
+  const header = document.createElement('div');
+  header.textContent = 'Secure Authentication (Sandbox)';
+  Object.assign(header.style, {
+    fontWeight: '600',
+    fontSize: '14px',
+    padding: '10px 12px',
+    borderBottom: '1px solid #e5e7eb'
+  });
+
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕';
+  closeBtn.setAttribute('aria-label', 'Close');
+  Object.assign(closeBtn.style, {
+    position: 'absolute',
+    top: '8px',
+    right: '8px',
+    border: 'none',
+    background: 'transparent',
+    cursor: 'pointer',
+    fontSize: '16px'
+  });
+
+  // The iframe (named "myWindow" to match your logging code)
+  const myWindow = document.createElement('iframe');
+  myWindow.src = `https://sandbox.src.mastercard.com/auth?origin=${window.location.origin}`;
+  // IMPORTANT: explicit permissions for cross-origin WebAuthn + payment
+  myWindow.setAttribute('allow', 'publickey-credentials-get *; publickey-credentials-create *; payment *');
+  Object.assign(myWindow.style, { border: '0', width: '100%', height: '100%' });
+
+  modal.append(header, closeBtn, myWindow);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  // Give the iframe focus (helps some browsers)
+  setTimeout(() => { try { myWindow.contentWindow?.focus(); } catch (_) {} }, 0);
+
+  // ---- Your auth parameters (unchanged) ----
+  const srcserviceid  = 'SECURE_COF_COMMERCE_PLATFORM#DOCUMENTATION-UPN2#01';
+  const srcclientid   = '5e0d4b84-189d-4c86-822d-590602f62062';
+  const digcardid     = 'O8L-FZSbSW-9wkW1Ro4lVA000000000000US';
+  const correlationid = 'abf67404-85e2-4186-a057-7eaeb0ecac87';
+  const authreason    = 'TRANSACTION_AUTHENTICATION';
+  const authmethod    = 'MANAGED_AUTHENTICATION';
+  const txamt         = 36.39; // number for clarity
+  const txcode        = 'USD';
+
+  let text = `{
+    "authenticationContext": {
+      "acquirerBIN": "444444",
+      "acquirerMerchantId": "550e8400",
+      "dpaData": { "dpaName": "Sample_DPA", "dpaUri": "www.samplewebsite.com" },
+      "dpaTransactionOptions": {
+        "dpaLocale": "en_US",
+        "merchantCategoryCode": "0008",
+        "merchantCountryCode": "US",
+        "transactionAmount": { "transactionAmount": ${txamt}, "transactionCurrencyCode": "${txcode}" }
+      },
+      "authenticationReasons": ["${authreason}"]
+    },
+    "authenticationMethod": { "authenticationMethodType": "${authmethod}", "authenticationSubject": "CARDHOLDER" },
+    "srcCorrelationId": "${correlationid}",
+    "accountReference": { "srcDigitalCardId": "${digcardid}" },
+    "serviceId": "${srcserviceid}",
+    "srcClientId": "${srcclientid}"
+  }`;
+
+  const payload = JSON.parse(text);
+  const TRUSTED_ORIGIN = 'https://sandbox.src.mastercard.com';
+
+  return new Promise((resolve, reject) => {
+    // ---- Logging + messaging handler (matches your style) ----
+    const handler = (event) => {
+      if (event.origin !== TRUSTED_ORIGIN) {
+        console.log('This is not what I want');
+        return;
+      }
+      console.log('Source::', event.source);
+      console.log('data::', event.data);
+      console.log('Origin::', event.origin);
+
+      switch (event.data.action) {
+        case 'Ready':
+          console.log('I sent this::', payload);
+          // Post to the iframe we created
+          return myWindow.contentWindow.postMessage({ action: 'Authenticate', payload }, event.origin);
+
+        case 'Success':
+          console.log('3DS Successfully completed');
+          cleanup();
+          return resolve(payload);
+
+        case 'Error':
+          console.log('3DS Error');
+          cleanup();
+          return reject(payload);
+      }
+    };
+
+    function cleanup() {
+      window.removeEventListener('message', handler);
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      // Optional: re-enable any disabled buttons you use elsewhere
+      const buyBtn = document.getElementById('buyButton');
+      if (buyBtn) { buyBtn.disabled = false; buyBtn.innerHTML = 'Complete Purchase'; }
+    }
+
+    // Wire listeners AFTER they exist
+    window.addEventListener('message', handler);
+
+    // Allow user to cancel via close/backdrop/ESC (also logged)
+    closeBtn.onclick = () => { console.log('Modal closed by user'); cleanup(); reject(new Error('User canceled')); };
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) { console.log('Backdrop click'); cleanup(); reject(new Error('User canceled')); }});
+    document.addEventListener('keydown', onEscOnce, { once: true });
+    function onEscOnce(e){ if (e.key === 'Escape') { console.log('ESC pressed'); cleanup(); reject(new Error('User canceled')); } }
+  });
+}
+</script>
+
+
+
+<script>
     	//<button onclick="createPasskey()">Create Passkey</button>
     	//<button onclick="verifyPasskey()">Log in with a Passkey</button>
     	
@@ -220,7 +1760,7 @@
     		//let myWindow = window.open("", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=350,left=600,width=600,height=600");
 
     		//const view1 = document.defaultView;
-    		//console.log("THIS IS: ");
+    		console.log("THIS IS: ");
     		//console.log(view1);
     		//console.log(window.self);
     		
@@ -237,7 +1777,6 @@
             var txcode = 'USD';
 
             let text = `{"authenticationContext":{"acquirerBIN": "444444","acquirerMerchantId": "550e8400","dpaData":{"dpaName":"Sample_DPA","dpaUri":"www.samplewebsite.com"},"dpaTransactionOptions":{"dpaLocale":"en_US","merchantCategoryCode":"0008","merchantCountryCode":"US","transactionAmount":{"transactionAmount":${txamt},"transactionCurrencyCode":"${txcode}"}},"authenticationReasons":["${authreason}"]},"authenticationMethod":{"authenticationMethodType":"${authmethod}","authenticationSubject":"CARDHOLDER"},"srcCorrelationId":"${correlationid}","accountReference":{"srcDigitalCardId":"${digcardid}"},"serviceId":"${srcserviceid}","srcClientId":"${srcclientid}"}`;
-
 
 
 const payload = JSON.parse(text);
@@ -277,17 +1816,36 @@ const payload = JSON.parse(text);
     	}
     </script>
 
-    <script>
-        const buyButton = document.getElementById('buyButton');
-        const buyButton2 = document.getElementById('buyButton2');
-        const statusMessage = document.getElementById('statusMessage');
-        const passkeyIframe = document.getElementById('passkeyIframe');
-        const displayDiv = document.getElementById('display');
 
-        let passkeySupported = false;
 
-        // Function to show status message
-        function showStatus(message, type) {
+<button id="testOpenWin"
+  style="
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    background: #007bff;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 9999;
+  ">
+  🔍 Test openWin()
+</button>
+
+<script>
+  document.getElementById('testOpenWin').addEventListener('click', openWin);
+</script>
+
+<script>
+	
+	const buyButton2 = document.getElementById('buyButton2');
+        		const statusMessage = document.getElementById('statusMessage');
+        		const displayDiv = document.getElementById('display');
+        		
+        		function showStatus(message, type) {
             statusMessage.textContent = message;
             statusMessage.className = `status-message show ${type}`;
         }
@@ -296,62 +1854,19 @@ const payload = JSON.parse(text);
         function hideStatus() {
             statusMessage.className = 'status-message';
         }
-
-        // Listen for messages from iframePK.html
-        window.addEventListener('message', (event) => {
-            // Handle passkey support check response
-            if (event.data.type === 'passkey-support') {
-                console.log('Passkey support check result:', event.data);
-                
-                if (event.data.supported && event.data.platformAuthenticator) {
-                    passkeySupported = true;
-                    showStatus('✅ Passkey authentication available on this device', 'success');
-                    console.log('Device supports passkeys - proceeding with authentication');
-                    
-                    // Now trigger the Mastercard authentication flow
-                    setTimeout(() => {
-                        launchiframe();
-                    }, 1000);
-                } else {
-                    passkeySupported = false;
-                    showStatus('⚠️ Passkeys not available. Using alternative authentication.', 'info');
-                    console.log('Passkeys not supported - falling back to 3DS');
-                    
-                    // Fallback to standard 3DS flow
-                    setTimeout(() => {
-                        openWin();
-                    }, 1000);
-                }
-            }
-
-            // Handle Mastercard authentication messages
-            if (event.origin === "https://sandbox.src.mastercard.com") {
-                console.log('Mastercard message received:', event.data);
-                // Handle authentication flow here
-            }
-        });
-
-        // Buy button click handler
-        buyButton.addEventListener('click', async () => {
-            buyButton.disabled = true;
-            buyButton.innerHTML = 'Processing<span class="loading-spinner"></span>';
-            hideStatus();
-
-            showStatus('🔍 Checking device capabilities...', 'info');
-
-            // Load the passkey check iframe
-            passkeyIframe.src = 'iframePK.html';
-            
-            // The iframe will automatically check and send back results via postMessage
-        });
-
+        
         buyButton2.addEventListener('click', () => {
-    openWin();               
+    launchiframe();               
   });
-
-        // Mastercard authentication flow
-        async function launchiframe() {
+  
+  
+	async function launchiframe() {
+            
+            
+            
             showStatus('🔐 Initializing secure authentication...', 'info');
+            
+            
 
             // Creating iframe element
             let myWindow = document.createElement("iframe");
@@ -371,6 +1886,7 @@ const payload = JSON.parse(text);
             // Authentication parameters
             var srcserviceid = 'SECURE_COF_COMMERCE_PLATFORM#DOCUMENTATION-UPN2#01';
             var srcclientid = '5e0d4b84-189d-4c86-822d-590602f62062';
+            //var digcardid = 'S5bWtnSbRUGezq0g7HJXjw000000000000US';
             var digcardid = 'O8L-FZSbSW-9wkW1Ro4lVA000000000000US';
             var correlationid = 'abf67404-85e2-4186-a057-7eaeb0ecac87';
             var authreason = 'TRANSACTION_AUTHENTICATION';
@@ -406,8 +1922,8 @@ const payload = JSON.parse(text);
                             console.log('Authentication successful!');
                             showStatus('✅ Payment authenticated successfully!', 'success');
                             displayDiv.removeChild(displayDiv.lastChild);
-                            buyButton.disabled = false;
-                            buyButton.innerHTML = 'Complete Purchase';
+                            buyButton2.disabled = false;
+                            buyButton2.innerHTML = 'Complete Purchase';
                             return resolve(payload);
 
                         case 'Error':
@@ -421,6 +1937,77 @@ const payload = JSON.parse(text);
                 });
             });
         }
+
+	
+</script>
+
+<script>
+    	//<button onclick="createPasskey()">Create Passkey</button>
+    	//<button onclick="verifyPasskey()">Log in with a Passkey</button>
+    	
+    	async function openWin() {
+    		//window.open("https://sandbox.src.mastercard.com/auth/?origin=http://localhost:9000", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=350,left=600,width=600,height=600");
+    		
+    		var myWindow = window.open("", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=200,left=600,width=500,height=700");
+    		
+    		//let myWindow = window.open("", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=350,left=600,width=600,height=600");
+
+    		//const view1 = document.defaultView;
+    		console.log("THIS IS: ");
+    		//console.log(view1);
+    		//console.log(window.self);
+    		
+    		myWindow.location.href = `https://sandbox.src.mastercard.com/auth?origin=${window.location.origin}`;
+    		
+            var srcserviceid = 'SECURE_COF_COMMERCE_PLATFORM#DOCUMENTATION-UPN2#01';
+            var srcclientid = '5e0d4b84-189d-4c86-822d-590602f62062';
+            //var digcardid = 'S5bWtnSbRUGezq0g7HJXjw000000000000US';
+            var digcardid = 'O8L-FZSbSW-9wkW1Ro4lVA000000000000US';
+            var correlationid = 'abf67404-85e2-4186-a057-7eaeb0ecac87';
+            var authreason = 'TRANSACTION_AUTHENTICATION';
+            var authmethod =  'MANAGED_AUTHENTICATION';
+            var txamt = '36.39';
+            var txcode = 'USD';
+
+            let text = `{"authenticationContext":{"acquirerBIN": "444444","acquirerMerchantId": "550e8400","dpaData":{"dpaName":"Sample_DPA","dpaUri":"www.samplewebsite.com"},"dpaTransactionOptions":{"dpaLocale":"en_US","merchantCategoryCode":"0008","merchantCountryCode":"US","transactionAmount":{"transactionAmount":${txamt},"transactionCurrencyCode":"${txcode}"}},"authenticationReasons":["${authreason}"]},"authenticationMethod":{"authenticationMethodType":"${authmethod}","authenticationSubject":"CARDHOLDER"},"srcCorrelationId":"${correlationid}","accountReference":{"srcDigitalCardId":"${digcardid}"},"serviceId":"${srcserviceid}","srcClientId":"${srcclientid}"}`;
+
+
+const payload = JSON.parse(text);
+    		
+    		return new Promise((resolve, reject) => {
+    		window.addEventListener("message", (event) => {
+  // Do we trust the sender of this message?
+  if (event.origin !== "https://sandbox.src.mastercard.com") 
+  	{console.log('This is not what I want');
+  		return;}
+    		//window.addEventListener('message', ({ data, source, origin }) => {
+          console.log('Source::', event.source);
+          console.log('data::', event.data);
+          console.log('Origin::', event.origin);
+          switch (event.data.action) {
+            case 'Ready':
+              //return window.postMessage({
+              console.log('I sent this::', payload);
+              
+              return event.source.postMessage({	
+                action: 'Authenticate',
+                payload},event.origin)
+                
+                
+            case 'Success':
+              console.log('3DS Successfully completed')
+              myWindow.close();
+              return resolve(payload)
+            case 'Error':
+              console.log('3DS Error')
+              myWindow.close();
+              return reject(payload)
+          }
+        })
+    		
+    		})
+    	}
     </script>
+
 </body>
 </html>
