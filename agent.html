@@ -1590,78 +1590,110 @@ if (window.__agentPmId && window.__cardDetails) {
 
 		<!-- Temporary openWin test helper -->
 <script>
+/**
+ * Centered iframe auth flow with passkey support + verbose logging.
+ * Usage: openWin()  ← call this directly from a user click handler.
+ */
 async function openWin() {
-  // Backdrop + centered modal
+  // ---- Overlay + centered modal ----
   const overlay = document.createElement('div');
   Object.assign(overlay.style, {
-    position:'fixed', inset:'0', background:'rgba(0,0,0,0.5)',
-    display:'flex', alignItems:'center', justifyContent:'center',
-    zIndex:'2147483000'
+    position: 'fixed',
+    inset: '0',
+    background: 'rgba(0,0,0,0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: '2147483000'
   });
 
   const modal = document.createElement('div');
   Object.assign(modal.style, {
-    background:'#fff', borderRadius:'12px', boxShadow:'0 10px 30px rgba(0,0,0,0.25)',
-    width:'420px', height:'360px', maxWidth:'95vw', maxHeight:'85vh',
-    display:'flex', flexDirection:'column', overflow:'hidden', position:'relative'
+    background: '#fff',
+    borderRadius: '12px',
+    boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
+    width: '420px',
+    height: '360px',
+    maxWidth: '95vw',
+    maxHeight: '85vh',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    position: 'relative'
   });
 
   const header = document.createElement('div');
   header.textContent = 'Secure Authentication (Sandbox)';
-  Object.assign(header.style, { fontWeight:'600', fontSize:'14px', padding:'10px 12px', borderBottom:'1px solid #e5e7eb' });
+  Object.assign(header.style, {
+    fontWeight: '600',
+    fontSize: '14px',
+    padding: '10px 12px',
+    borderBottom: '1px solid #e5e7eb'
+  });
 
   const closeBtn = document.createElement('button');
   closeBtn.textContent = '✕';
   closeBtn.setAttribute('aria-label', 'Close');
-  Object.assign(closeBtn.style, { position:'absolute', top:'8px', right:'8px', border:'none', background:'transparent', cursor:'pointer', fontSize:'16px' });
+  Object.assign(closeBtn.style, {
+    position: 'absolute',
+    top: '8px',
+    right: '8px',
+    border: 'none',
+    background: 'transparent',
+    cursor: 'pointer',
+    fontSize: '16px'
+  });
 
-  const myWindow = document.createElement('iframe'); // keep var name from your logs
+  // The iframe (named "myWindow" to match your logging code)
+  const myWindow = document.createElement('iframe');
   myWindow.src = `https://sandbox.src.mastercard.com/auth?origin=${window.location.origin}`;
-  myWindow.allow = 'payment; publickey-credentials-create; publickey-credentials-get';
-  Object.assign(myWindow.style, { border:'0', width:'100%', height:'100%' });
+  // IMPORTANT: explicit permissions for cross-origin WebAuthn + payment
+  myWindow.setAttribute('allow', 'publickey-credentials-get *; publickey-credentials-create *; payment *');
+  Object.assign(myWindow.style, { border: '0', width: '100%', height: '100%' });
 
   modal.append(header, closeBtn, myWindow);
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
-  // ------- AUTH PARAMS (your values) -------
-  const srcserviceid = 'SECURE_COF_COMMERCE_PLATFORM#DOCUMENTATION-UPN2#01';
-  const srcclientid  = '5e0d4b84-189d-4c86-822d-590602f62062';
-  const digcardid    = 'O8L-FZSbSW-9wkW1Ro4lVA000000000000US';
-  const correlationid= 'abf67404-85e2-4186-a057-7eaeb0ecac87';
-  const authreason   = 'TRANSACTION_AUTHENTICATION';
-  const authmethod   = 'MANAGED_AUTHENTICATION';
-  const txamt        = 36.39;
-  const txcode       = 'USD';
+  // Give the iframe focus (helps some browsers)
+  setTimeout(() => { try { myWindow.contentWindow?.focus(); } catch (_) {} }, 0);
+
+  // ---- Your auth parameters (unchanged) ----
+  const srcserviceid  = 'SECURE_COF_COMMERCE_PLATFORM#DOCUMENTATION-UPN2#01';
+  const srcclientid   = '5e0d4b84-189d-4c86-822d-590602f62062';
+  const digcardid     = 'O8L-FZSbSW-9wkW1Ro4lVA000000000000US';
+  const correlationid = 'abf67404-85e2-4186-a057-7eaeb0ecac87';
+  const authreason    = 'TRANSACTION_AUTHENTICATION';
+  const authmethod    = 'MANAGED_AUTHENTICATION';
+  const txamt         = 36.39; // number for clarity
+  const txcode        = 'USD';
 
   let text = `{
-    "authenticationContext":{
-      "acquirerBIN":"444444",
-      "acquirerMerchantId":"550e8400",
-      "dpaData":{"dpaName":"Sample_DPA","dpaUri":"www.samplewebsite.com"},
-      "dpaTransactionOptions":{
-        "dpaLocale":"en_US",
-        "merchantCategoryCode":"0008",
-        "merchantCountryCode":"US",
-        "transactionAmount":{"transactionAmount":${txamt},"transactionCurrencyCode":"${txcode}"}
+    "authenticationContext": {
+      "acquirerBIN": "444444",
+      "acquirerMerchantId": "550e8400",
+      "dpaData": { "dpaName": "Sample_DPA", "dpaUri": "www.samplewebsite.com" },
+      "dpaTransactionOptions": {
+        "dpaLocale": "en_US",
+        "merchantCategoryCode": "0008",
+        "merchantCountryCode": "US",
+        "transactionAmount": { "transactionAmount": ${txamt}, "transactionCurrencyCode": "${txcode}" }
       },
-      "authenticationReasons":["${authreason}"]
+      "authenticationReasons": ["${authreason}"]
     },
-    "authenticationMethod":{"authenticationMethodType":"${authmethod}","authenticationSubject":"CARDHOLDER"},
-    "srcCorrelationId":"${correlationid}",
-    "accountReference":{"srcDigitalCardId":"${digcardid}"},
-    "serviceId":"${srcserviceid}",
-    "srcClientId":"${srcclientid}"
+    "authenticationMethod": { "authenticationMethodType": "${authmethod}", "authenticationSubject": "CARDHOLDER" },
+    "srcCorrelationId": "${correlationid}",
+    "accountReference": { "srcDigitalCardId": "${digcardid}" },
+    "serviceId": "${srcserviceid}",
+    "srcClientId": "${srcclientid}"
   }`;
 
   const payload = JSON.parse(text);
-  console.log("Iframe URL:", myWindow.src);
-
-  const TRUSTED_ORIGIN = "https://sandbox.src.mastercard.com";
+  const TRUSTED_ORIGIN = 'https://sandbox.src.mastercard.com';
 
   return new Promise((resolve, reject) => {
+    // ---- Logging + messaging handler (matches your style) ----
     const handler = (event) => {
-      // EXACT-style logging you asked for:
       if (event.origin !== TRUSTED_ORIGIN) {
         console.log('This is not what I want');
         return;
@@ -1673,11 +1705,8 @@ async function openWin() {
       switch (event.data.action) {
         case 'Ready':
           console.log('I sent this::', payload);
-          // post to the iframe
-          return myWindow.contentWindow.postMessage({
-            action: 'Authenticate',
-            payload
-          }, event.origin);
+          // Post to the iframe we created
+          return myWindow.contentWindow.postMessage({ action: 'Authenticate', payload }, event.origin);
 
         case 'Success':
           console.log('3DS Successfully completed');
@@ -1694,19 +1723,24 @@ async function openWin() {
     function cleanup() {
       window.removeEventListener('message', handler);
       if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-      // (Optional) re-enable any disabled buttons, etc.
+      // Optional: re-enable any disabled buttons you use elsewhere
       const buyBtn = document.getElementById('buyButton');
       if (buyBtn) { buyBtn.disabled = false; buyBtn.innerHTML = 'Complete Purchase'; }
     }
 
-    // wire listeners after they exist
+    // Wire listeners AFTER they exist
     window.addEventListener('message', handler);
+
+    // Allow user to cancel via close/backdrop/ESC (also logged)
     closeBtn.onclick = () => { console.log('Modal closed by user'); cleanup(); reject(new Error('User canceled')); };
     overlay.addEventListener('click', (e) => { if (e.target === overlay) { console.log('Backdrop click'); cleanup(); reject(new Error('User canceled')); }});
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { console.log('ESC pressed'); cleanup(); reject(new Error('User canceled')); }}, { once:true });
+    document.addEventListener('keydown', onEscOnce, { once: true });
+    function onEscOnce(e){ if (e.key === 'Escape') { console.log('ESC pressed'); cleanup(); reject(new Error('User canceled')); } }
   });
 }
 </script>
+
+
 
 
 
@@ -1730,9 +1764,7 @@ async function openWin() {
 </button>
 
 <script>
-  document.getElementById('testOpenWin').addEventListener('click', () => {
-    openWin();
-  });
+  document.getElementById('testOpenWin').addEventListener('click', openWin);
 </script>
 
 
