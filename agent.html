@@ -1655,6 +1655,8 @@ async function openWin() {
   }`;
 
   const payload = JSON.parse(text);
+  console.log("Iframe URL:", myWindow.src);
+
   const TRUSTED_ORIGIN = "https://sandbox.src.mastercard.com";
 
   return new Promise((resolve, reject) => {
